@@ -1,0 +1,27 @@
+{
+  "name": "tfc-chain",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/Troublor/tfc-chain",
+  "author": "Wuqi Aaron Zhang <troublor@live.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/eslint": "^7",
+    "@types/jest": "^26.0.21",
+    "@types/node": "^14.14.35",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "eslint": "^7.22.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.4",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
