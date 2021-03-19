@@ -37,14 +37,18 @@ contract TurboFil {
         if (rnodeId != "") {
             RNode rnode = new RNode(rnodeId);
             acc.rnodes.push(rnode);
-            for (uint i = 0; i < fnodeIdList.length; i++) { // TODO might have integer overflow vulnerability
+            for (uint i = 0; i < fnodeIdList.length; i++) {// TODO might have integer overflow vulnerability
                 string fnodeId = fnodeIdList[i];
                 if (fnodeId != "") {
-                    RNode fnode = new RNode(fnodeId);
+                    RNode fnode = new RNode(rnode, fnodeId);
                     acc.fnodes.push(fnode);
                 }
             }
         }
         accounts[acc.addr] = acc;
+    }
+
+    function distributeRewards() public {
+
     }
 }

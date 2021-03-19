@@ -6,5 +6,8 @@ contract FNode {
     IRNode rnode;
     string id;
 
-    string
+    constructor(address _rnode, string _id) {
+        rnode = _rnode;
+        id = _id;
+    }
 }

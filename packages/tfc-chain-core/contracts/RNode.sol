@@ -24,7 +24,6 @@ contract RNode {
         address[] unrewardedVerifiers; // the list of accounts who have verified the seed
         string afid; // afid of this photo
         uint256 timestamp; // timestamp of this photo
-        address rnodeOwner; // the account who generate the sector corresponding to this seed
         string sectorId; // the id of the sector
         string sectorAfid; // the afid of the sector
         string merkleRoot; // the merkle root of the sector
@@ -44,15 +43,62 @@ contract RNode {
         unrewardedSectors.push(sector);
     }
 
-    function submitSeed(string afid, uint256 timestamp, address rnodeOwner, string rnodeId, string sectorId, string sectorAfid, string merkleRoot) public {
+    function submitSeed(string afid, uint256 timestamp, string sectorId, string sectorAfid, string merkleRoot) public {
         Seed seed;
         // TODO may need to check msg.sender is human
         seed.submitter = msg.sender;
         seed.afid = afid;
         seed.timestamp = timestamp;
-        seed.rnodeOwner = rnodeOwner;
         seed.sectorId = sectorId;
         seed.sectorAfid = sectorAfid;
         seed.merkleRoot = merkleRoot;
+        for (uint i = 0; i < unrewardedSectors.length; i++) {
+            if (unrewardedSectors[i].id == sectorId) {
+                unrewardedSectors[i].unrewardedSeeds.push(seed);
+                return;
+            }
+        }
+        for (uint i = 0; i < rewardedSectors.length; i++) {
+            if (rewardedSectors[i].id == sectorId) {
+                rewardedSectors[i].unrewardedSeeds.push(seed);
+            }
+        }
+    }
+
+    function submitVerification(string sectorId, string seedAfid, address verifier) public {
+        for (uint i = 0; i < unrewardedSectors.length; i++) {
+            Sector sector = unrewardedSectors[i];
+            if (sector.id == sectorId) {
+                for (uint j = 0; j < sector.unrewardedSeeds.length; j ++) {
+                    if (sector.unrewardedSeeds[j].afid == seedAfid) {
+                        sector.unrewardedSeeds[j].unrewardedVerifiers.push(verifier);
+                        return;
+                    }
+                }
+                for (uint j = 0; j < sector.rewardedSeeds.length; j ++) {
+                    if (sector.rewardedSeeds[j].afid == seedAfid) {
+                        sector.rewardedSeeds[j].unrewardedVerifiers.push(verifier);
+                        return;
+                    }
+                }
+            }
+        }
+        for (uint i = 0; i < rewardedSectors.length; i++) {
+            Sector sector = rewardedSectors[i];
+            if (sector.id == sectorId) {
+                for (uint j = 0; j < sector.unrewardedSeeds.length; j ++) {
+                    if (sector.unrewardedSeeds[j].afid == seedAfid) {
+                        sector.unrewardedSeeds[j].unrewardedVerifiers.push(verifier);
+                        return;
+                    }
+                }
+                for (uint j = 0; j < sector.rewardedSeeds.length; j ++) {
+                    if (sector.rewardedSeeds[j].afid == seedAfid) {
+                        sector.rewardedSeeds[j].unrewardedVerifiers.push(verifier);
+                        return;
+                    }
+                }
+            }
+        }
     }
 }
