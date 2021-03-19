@@ -12,11 +12,10 @@ contract TurboFil {
     }
 
     struct Account {
-        address addr;
         address recommender;
         Mobile[] mobiles;
-        RNode[] rnodes;
-        FNode[] fnodes;
+        RNode[] rnodes; // trfs sector
+        FNode[] fnodes; // tfs sector
     }
 
     mapping(address => Account) accounts; // a mapping from account address to its info struct
