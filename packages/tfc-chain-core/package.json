@@ -1,0 +1,18 @@
+{
+  "name": "@tfc-chain/core",
+  "version": "0.0.1",
+  "repository": "https://github.com/Troublor/tfc-chain",
+  "author": "Wuqi Aaron Zhang <troublor@live.com>",
+  "license": "MIT",
+  "scripts": {
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.4.1"
+  },
+  "devDependencies":
+  {
+    "@openzeppelin/test-environment": "^0.1.9",
+    "@openzeppelin/test-helpers": "^0.5.10",
+    "ganache-core": "^2.13.2"
+  }
+}
