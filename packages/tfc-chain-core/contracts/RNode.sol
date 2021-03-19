@@ -30,6 +30,10 @@ contract RNode {
         string merkleRoot; // the merkle root of the sector
     }
 
+    constructor(string _id) {
+        id = _id;
+    }
+
     function submitSector(string id, string afid, string merkleRoot) public {
         Sector sector;
         // TODO may need to check msg.sender is human

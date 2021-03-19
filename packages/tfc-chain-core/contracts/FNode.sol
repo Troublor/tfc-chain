@@ -5,4 +5,6 @@ import "./interfaces.sol";
 contract FNode {
     IRNode rnode;
     string id;
+
+    string
 }
