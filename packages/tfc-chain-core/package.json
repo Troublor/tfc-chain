@@ -7,7 +7,7 @@
   "scripts": {
     "dev:remixd": "remixd -s ./contracts --remix-ide https://remix.ethereum.org",
     "compile": "hardhat compile",
-    "test": "jest"
+    "test": "hardhat test:jest"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.0.0-rc.0",
@@ -22,6 +22,7 @@
     "ethers": "^5.0.32",
     "ganache-core": "^2.13.2",
     "hardhat": "^2.1.1",
+    "hardhat-jest-plugin": "^0.0.3",
     "ts-generator": "^0.1.1",
     "typechain": "^4.0.3"
   }
