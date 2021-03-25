@@ -99,42 +99,74 @@ describe('TurboFil Contract', () => {
         await expect(turboFil.register(vault.address)).rejects.toThrow('TurboFil: Already-registered account');
     });
 
-    test('should allow a registered user to register Mobile/RNode/FNode', async () => {
-        // use mainAccount
-        turboFil = turboFil.connect(mainAccount);
-        let tx = await turboFil.register(vault.address);
-        await tx.wait();
+    describe('register', () => {
+        beforeEach(async () => {
+            // use mainAccount to register an account
+            turboFil = turboFil.connect(mainAccount);
+            const tx = await turboFil.register(vault.address);
+            await tx.wait();
+        });
+        test('should allow a registered user to register Mobile/RNode/FNode', async () => {
+            // register mobile
+            let tx = await turboFil.registerMobile('+1 23456');
+            let receipt = await tx.wait();
+            expectEvent(receipt, {
+                RegisterMobile: {
+                    addr: mainAccount.address,
+                    phone: '+1 23456',
+                },
+            });
 
-        // register mobile
-        tx = await turboFil.registerMobile('+1 23456');
-        let receipt = await tx.wait();
-        expectEvent(receipt, {
-            RegisterMobile: {
-                addr: mainAccount.address,
-                phone: '+1 23456',
-            },
+            // register rnode
+            tx = await turboFil.registerRNode('rnode');
+            receipt = await tx.wait();
+            expectEvent(receipt, {
+                RegisterRNode: {
+                    addr: mainAccount.address,
+                    id: 'rnode',
+                },
+            });
+            const rnodeAddress = receipt.events?.[0].args?.['rnode'];
+
+            // register mobile
+            tx = await turboFil['registerFNode(string,string)']('fnode', 'rnode');
+            receipt = await tx.wait();
+            expectEvent(receipt, {
+                RegisterFNode: {
+                    addr: mainAccount.address,
+                    id: 'fnode',
+                    rnode: rnodeAddress,
+                },
+            });
         });
 
-        // register rnode
-        tx = await turboFil.registerRNode('rnode');
-        receipt = await tx.wait();
-        expectEvent(receipt, {
-            RegisterRNode: {
-                addr: mainAccount.address,
-                id: 'rnode',
-            },
-        });
-        const rnodeAddress = receipt.events?.[0].args?.['rnode'];
+        test('should not allow register an already-registered Mobile', async () => {
+            // register mobile
+            const tx = await turboFil.registerMobile('+1 23456');
+            await tx.wait();
 
-        // register mobile
-        tx = await turboFil['registerFNode(string,string)']('fnode', 'rnode');
-        receipt = await tx.wait();
-        expectEvent(receipt, {
-            RegisterFNode: {
-                addr: mainAccount.address,
-                id: 'fnode',
-                rnode: rnodeAddress,
-            },
+            // register the same mobile again
+            await expect(turboFil.registerMobile('+1 23456')).rejects.toThrow('TurboFil: Mobile is already registered');
+        });
+
+        test('should not allow register an already-registered RNode', async () => {
+            // register rnode
+            const tx = await turboFil.registerRNode('rnode');
+            await tx.wait();
+
+            // register the same rnode again
+            await expect(turboFil.registerRNode('rnode')).rejects.toThrow('TurboFil: RNode is already registered');
+        });
+
+        test('should not allow register an already-registered FNode', async () => {
+            // register fnode
+            let tx = await turboFil.registerRNode('rnode');
+            await tx.wait();
+            tx = await turboFil['registerFNode(string,string)']('fnode', 'rnode');
+            await tx.wait();
+
+            // register the same fnode again
+            await expect(turboFil['registerFNode(string,string)']('fnode', 'rnode')).rejects.toThrow('TurboFil: FNode is already registered');
         });
     });
 });

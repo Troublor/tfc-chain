@@ -22,6 +22,7 @@ contract TurboFil {
         bool registered;
     }
 
+    mapping(string => address) mobileMapping;
     mapping(string => RNode) rnodeMapping; // a mapping from rnode id to rnode contract
     mapping(string => FNode) fnodeMapping; // a mapping from fnode id to fnode contract
     mapping(address => Account) accounts; // a mapping from account address to its info struct
@@ -55,10 +56,12 @@ contract TurboFil {
     }
 
     function registerMobile(string calldata phone) onlyRegistered external {
+        require(mobileMapping[phone] == address(0), "TurboFil: Mobile is already registered");
         Account storage acc = accounts[msg.sender];
         Mobile memory mobile = Mobile({phoneNumber : phone});
         mobile.phoneNumber = phone;
         acc.mobiles.push(mobile);
+        mobileMapping[phone] = msg.sender;
         emit RegisterMobile(msg.sender, phone);
     }
 
