@@ -125,3 +125,6 @@ dist
 *.iml
 out
 gen
+
+cache
+coverage.json
