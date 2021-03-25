@@ -5,32 +5,37 @@ import {ContractReceipt} from 'ethers';
 import {fail} from 'assert';
 
 describe('TurboFil Contract', () => {
-    let vault: SignerWithAddress;
-    let mainAccount: SignerWithAddress;
-    let otherAccount: SignerWithAddress;
+    let vault: string;
+    let deployer: SignerWithAddress;
+    let user1: SignerWithAddress;
+    let user2: SignerWithAddress;
     let accounts: SignerWithAddress[];
-    let turboFil: TurboFil;
+    let turboFil_deployer: TurboFil;
+    let turboFil_user1: TurboFil;
+    let turboFil_user2: TurboFil;
 
     beforeEach(async function () {
+        // define accounts
         accounts = await ethers.getSigners();
-        [vault, mainAccount, otherAccount] = accounts;
+        [deployer, user1, user2] = accounts;
+
+        // deploy
         const TurboFil: TurboFil__factory = await ethers.getContractFactory('TurboFil') as unknown as TurboFil__factory;
-        turboFil = await TurboFil.deploy(vault.address);
-        await turboFil.deployed();
+        turboFil_deployer = await TurboFil.deploy();
+        vault = turboFil_deployer.address;
+        await turboFil_deployer.deployed();
+
+        // grant deployer REGISTER_ROLE
+        turboFil_deployer = turboFil_deployer.connect(deployer);
+        const tx = await turboFil_deployer.grantRole(await turboFil_deployer.REGISTER_ROLE(), deployer.address);
+        await tx.wait();
+
+        turboFil_user1 = turboFil_deployer.connect(user1);
+        turboFil_user2 = turboFil_deployer.connect(user2);
     });
 
     test('should be deployed successfully', async () => {
-        expect(turboFil.address).toBeTruthy();
-        await expect(turboFil.vault()).resolves.toBe(vault.address);
-    });
-
-    test('should not allow to register mobile/rnode/fnode for an unregistered account', async () => {
-        let promise = turboFil.registerMobile('+1 123456');
-        await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
-        promise = turboFil.registerRNode('rnode');
-        await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
-        promise = turboFil['registerFNode(string,address)']('fnode', accounts[0].address);
-        await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
+        expect(turboFil_deployer.address).toBeTruthy();
     });
 
     function expectEvent(receipt: ContractReceipt, events: Record<string, Record<string, unknown>>): void {
@@ -57,83 +62,91 @@ describe('TurboFil Contract', () => {
     }
 
     test('should allow to register user with vault as recommender', async () => {
-        // use mainAccount
-        turboFil = turboFil.connect(mainAccount);
-        const tx = await turboFil.register(vault.address);
+        // use user1
+        const tx = await turboFil_user1.register(vault);
         const receipt = await tx.wait();
         expectEvent(receipt, {
             Register: {
-                addr: mainAccount.address,
-                recommender: vault.address,
+                addr: user1.address,
+                recommender: vault,
             },
         });
     });
 
     test('should allow to register user with a normal recommender', async () => {
         // use mainAccount
-        turboFil = turboFil.connect(mainAccount);
-        let tx = await turboFil.register(vault.address);
+        let tx = await turboFil_user1.register(vault);
         await tx.wait();
-        turboFil = turboFil.connect(otherAccount);
-        tx = await turboFil.register(mainAccount.address);
+        tx = await turboFil_user2.register(user1.address);
         const receipt = await tx.wait();
         expectEvent(receipt, {
             Register: {
-                addr: otherAccount.address,
-                recommender: mainAccount.address,
+                addr: user2.address,
+                recommender: user1.address,
             },
         });
     });
 
     test('should not allow to register user with unregistered recommender', async () => {
         // use mainAccount
-        turboFil = turboFil.connect(mainAccount);
-        await expect(turboFil.register(mainAccount.address)).rejects.toThrow('TurboFil: Unregistered recommender');
-    });
-
-    test('should not allow to re-register user', async () => {
-        // use mainAccount
-        turboFil = turboFil.connect(mainAccount);
-        const tx = await turboFil.register(vault.address);
-        await tx.wait();
-        await expect(turboFil.register(vault.address)).rejects.toThrow('TurboFil: Already-registered account');
+        await expect(turboFil_user1.register(user1.address)).rejects.toThrow('TurboFil: Unregistered recommender');
     });
 
     describe('register', () => {
         beforeEach(async () => {
-            // use mainAccount to register an account
-            turboFil = turboFil.connect(mainAccount);
-            const tx = await turboFil.register(vault.address);
+            // use user1 to register an account
+            const tx = await turboFil_user1.register(vault);
             await tx.wait();
         });
+
+        test('should not allow to re-register user', async () => {
+            await expect(turboFil_user1.register(vault)).rejects.toThrow('TurboFil: Already-registered account');
+        });
+
+        test('should not allow to register mobile/rnode/fnode for an unregistered account', async () => {
+            let promise = turboFil_user2.registerMobile('+1 123456');
+            await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
+            promise = turboFil_deployer.registerRNode('rnode', user2.address);
+            await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
+            promise = turboFil_deployer['registerFNode(string,string,address)']('fnode', 'rnode', user2.address);
+            await expect(promise).rejects.toThrow('TurboFil: Unregistered account');
+        });
+
+        test('should not allow an authorized address to register RNode/FNode', async () => {
+            await expect(turboFil_user1.registerRNode('rnode', user1.address)).rejects.toThrow('TurboFil: Caller does not have privilege to register RNode');
+            const tx = await turboFil_deployer.registerRNode('rnode', user1.address);
+            await tx.wait();
+            await expect(turboFil_user1['registerFNode(string,string,address)']('fnode', 'rnode', user1.address)).rejects.toThrow('TurboFil: Caller does not have privilege to register FNode');
+        });
+
         test('should allow a registered user to register Mobile/RNode/FNode', async () => {
             // register mobile
-            let tx = await turboFil.registerMobile('+1 23456');
+            let tx = await turboFil_user1.registerMobile('+1 23456');
             let receipt = await tx.wait();
             expectEvent(receipt, {
                 RegisterMobile: {
-                    addr: mainAccount.address,
+                    addr: user1.address,
                     phone: '+1 23456',
                 },
             });
 
             // register rnode
-            tx = await turboFil.registerRNode('rnode');
+            tx = await turboFil_deployer.registerRNode('rnode', user1.address);
             receipt = await tx.wait();
             expectEvent(receipt, {
                 RegisterRNode: {
-                    addr: mainAccount.address,
+                    addr: user1.address,
                     id: 'rnode',
                 },
             });
             const rnodeAddress = receipt.events?.[0].args?.['rnode'];
 
             // register mobile
-            tx = await turboFil['registerFNode(string,string)']('fnode', 'rnode');
+            tx = await turboFil_deployer['registerFNode(string,string,address)']('fnode', 'rnode', user1.address);
             receipt = await tx.wait();
             expectEvent(receipt, {
                 RegisterFNode: {
-                    addr: mainAccount.address,
+                    addr: user1.address,
                     id: 'fnode',
                     rnode: rnodeAddress,
                 },
@@ -142,31 +155,35 @@ describe('TurboFil Contract', () => {
 
         test('should not allow register an already-registered Mobile', async () => {
             // register mobile
-            const tx = await turboFil.registerMobile('+1 23456');
+            const tx = await turboFil_user1.registerMobile('+1 23456');
             await tx.wait();
 
             // register the same mobile again
-            await expect(turboFil.registerMobile('+1 23456')).rejects.toThrow('TurboFil: Mobile is already registered');
+            await expect(turboFil_user1.registerMobile('+1 23456')).rejects.toThrow('TurboFil: Mobile is already registered');
         });
 
         test('should not allow register an already-registered RNode', async () => {
             // register rnode
-            const tx = await turboFil.registerRNode('rnode');
+            const tx = await turboFil_deployer.registerRNode('rnode', user1.address);
             await tx.wait();
 
             // register the same rnode again
-            await expect(turboFil.registerRNode('rnode')).rejects.toThrow('TurboFil: RNode is already registered');
+            await expect(turboFil_deployer.registerRNode('rnode', user1.address)).rejects.toThrow('TurboFil: RNode is already registered');
         });
 
         test('should not allow register an already-registered FNode', async () => {
             // register fnode
-            let tx = await turboFil.registerRNode('rnode');
+            let tx = await turboFil_deployer.registerRNode('rnode', user1.address);
             await tx.wait();
-            tx = await turboFil['registerFNode(string,string)']('fnode', 'rnode');
+            tx = await turboFil_deployer['registerFNode(string,string,address)']('fnode', 'rnode', user1.address);
             await tx.wait();
 
             // register the same fnode again
-            await expect(turboFil['registerFNode(string,string)']('fnode', 'rnode')).rejects.toThrow('TurboFil: FNode is already registered');
+            await expect(turboFil_deployer['registerFNode(string,string,address)']('fnode', 'rnode', user1.address)).rejects.toThrow('TurboFil: FNode is already registered');
+        });
+
+        test('should not allow to register a FNode on an unregistered RNode', async () => {
+            await expect(turboFil_deployer['registerFNode(string,string,address)']('fnode', 'rnode', user1.address)).rejects.toThrow('TurboFil: RNode is not registered');
         });
     });
 });

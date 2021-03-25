@@ -21,17 +21,57 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface TurboFilInterface extends ethers.utils.Interface {
   functions: {
+    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "REGISTER_ROLE()": FunctionFragment;
+    "accounts(address)": FunctionFragment;
+    "fnodeMapping(string)": FunctionFragment;
+    "getRoleAdmin(bytes32)": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
+    "mobileMapping(string)": FunctionFragment;
     "register(address)": FunctionFragment;
-    "registerFNode(string,string)": FunctionFragment;
+    "registerFNode(string,string,address)": FunctionFragment;
     "registerMobile(string)": FunctionFragment;
-    "registerRNode(string)": FunctionFragment;
-    "vault()": FunctionFragment;
+    "registerRNode(string,address)": FunctionFragment;
+    "renounceRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
+    "rnodeMapping(string)": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REGISTER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "accounts", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "fnodeMapping",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mobileMapping",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "register", values: [string]): string;
   encodeFunctionData(
     functionFragment: "registerFNode",
-    values: [string, string]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "registerMobile",
@@ -39,10 +79,48 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "registerRNode",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rnodeMapping",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "vault", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REGISTER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "accounts", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fnodeMapping",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mobileMapping",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "registerFNode",
@@ -56,19 +134,37 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "registerRNode",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "vault", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "rnodeMapping",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Register(address,address)": EventFragment;
     "RegisterFNode(address,string,address,address)": EventFragment;
     "RegisterMobile(address,string)": EventFragment;
     "RegisterRNode(address,string,address)": EventFragment;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Register"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterFNode"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterMobile"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterRNode"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
 }
 
 export class TurboFil extends Contract {
@@ -115,6 +211,73 @@ export class TurboFil extends Contract {
   interface: TurboFilInterface;
 
   functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    REGISTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    accounts(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, boolean] & { recommender: string; registered: boolean }
+    >;
+
+    "accounts(address)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, boolean] & { recommender: string; registered: boolean }
+    >;
+
+    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
+    "fnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
+    "mobileMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     register(
       recommender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -125,15 +288,17 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "registerFNode(string,string)"(
+    "registerFNode(string,string,address)"(
       id: string,
       rnode_id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "registerFNode(string,address)"(
+    "registerFNode(string,address,address)"(
       id: string,
       rnode: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -149,18 +314,120 @@ export class TurboFil extends Contract {
 
     registerRNode(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "registerRNode(string)"(
+    "registerRNode(string,address)"(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    vault(overrides?: CallOverrides): Promise<[string]>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "vault()"(overrides?: CallOverrides): Promise<[string]>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    rnodeMapping(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
+    "rnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
+
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  REGISTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  accounts(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<[string, boolean] & { recommender: string; registered: boolean }>;
+
+  "accounts(address)"(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<[string, boolean] & { recommender: string; registered: boolean }>;
+
+  fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+  "fnodeMapping(string)"(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  "getRoleAdmin(bytes32)"(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "grantRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "hasRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  mobileMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+  "mobileMapping(string)"(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   register(
     recommender: string,
@@ -172,15 +439,17 @@ export class TurboFil extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "registerFNode(string,string)"(
+  "registerFNode(string,string,address)"(
     id: string,
     rnode_id: string,
+    bind_address: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "registerFNode(string,address)"(
+  "registerFNode(string,address,address)"(
     id: string,
     rnode: string,
+    bind_address: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -196,19 +465,125 @@ export class TurboFil extends Contract {
 
   registerRNode(
     id: string,
+    bind_address: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "registerRNode(string)"(
+  "registerRNode(string,address)"(
     id: string,
+    bind_address: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  vault(overrides?: CallOverrides): Promise<string>;
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "vault()"(overrides?: CallOverrides): Promise<string>;
+  "renounceRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "revokeRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  rnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+  "rnodeMapping(string)"(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  supportsInterface(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "supportsInterface(bytes4)"(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    REGISTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    accounts(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, boolean] & { recommender: string; registered: boolean }
+    >;
+
+    "accounts(address)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, boolean] & { recommender: string; registered: boolean }
+    >;
+
+    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+    "fnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+    "mobileMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     register(recommender: string, overrides?: CallOverrides): Promise<void>;
 
     "register(address)"(
@@ -216,15 +591,17 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "registerFNode(string,string)"(
+    "registerFNode(string,string,address)"(
       id: string,
       rnode_id: string,
+      bind_address: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "registerFNode(string,address)"(
+    "registerFNode(string,address,address)"(
       id: string,
       rnode: string,
+      bind_address: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -235,16 +612,58 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    registerRNode(id: string, overrides?: CallOverrides): Promise<void>;
-
-    "registerRNode(string)"(
+    registerRNode(
       id: string,
+      bind_address: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    vault(overrides?: CallOverrides): Promise<string>;
+    "registerRNode(string,address)"(
+      id: string,
+      bind_address: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    "vault()"(overrides?: CallOverrides): Promise<string>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    rnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+    "rnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
   };
 
   filters: {
@@ -279,9 +698,99 @@ export class TurboFil extends Contract {
       [string, string, string],
       { addr: string; id: string; rnode: string }
     >;
+
+    RoleAdminChanged(
+      role: BytesLike | null,
+      previousAdminRole: BytesLike | null,
+      newAdminRole: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    RoleGranted(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleRevoked(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
   };
 
   estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    REGISTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    accounts(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accounts(address)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "fnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "mobileMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     register(
       recommender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -292,15 +801,17 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "registerFNode(string,string)"(
+    "registerFNode(string,string,address)"(
       id: string,
       rnode_id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "registerFNode(string,address)"(
+    "registerFNode(string,address,address)"(
       id: string,
       rnode: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -316,20 +827,135 @@ export class TurboFil extends Contract {
 
     registerRNode(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "registerRNode(string)"(
+    "registerRNode(string,address)"(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    vault(overrides?: CallOverrides): Promise<BigNumber>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "vault()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    rnodeMapping(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "rnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    DEFAULT_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "DEFAULT_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    REGISTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    accounts(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "accounts(address)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    fnodeMapping(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "fnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mobileMapping(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "mobileMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     register(
       recommender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -340,15 +966,17 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerFNode(string,string)"(
+    "registerFNode(string,string,address)"(
       id: string,
       rnode_id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerFNode(string,address)"(
+    "registerFNode(string,address,address)"(
       id: string,
       rnode: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -364,16 +992,58 @@ export class TurboFil extends Contract {
 
     registerRNode(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerRNode(string)"(
+    "registerRNode(string,address)"(
       id: string,
+      bind_address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    vault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    "vault()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    rnodeMapping(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "rnodeMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }
