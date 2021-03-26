@@ -3,16 +3,26 @@
 /* eslint-disable */
 export type { AccessControl } from "./AccessControl";
 export type { IAccessControl } from "./IAccessControl";
+export type { Ownable } from "./Ownable";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
-export type { FNode } from "./FNode";
+export type { IRNode } from "./IRNode";
+export type { IRNodeFactory } from "./IRNodeFactory";
+export type { ITFCShare } from "./ITFCShare";
 export type { RNode } from "./RNode";
+export type { RNodeFactory } from "./RNodeFactory";
+export type { TFCShare } from "./TFCShare";
 export type { TurboFil } from "./TurboFil";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
 export { IAccessControl__factory } from "./factories/IAccessControl__factory";
+export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
-export { FNode__factory } from "./factories/FNode__factory";
+export { IRNode__factory } from "./factories/IRNode__factory";
+export { IRNodeFactory__factory } from "./factories/IRNodeFactory__factory";
+export { ITFCShare__factory } from "./factories/ITFCShare__factory";
 export { RNode__factory } from "./factories/RNode__factory";
+export { RNodeFactory__factory } from "./factories/RNodeFactory__factory";
+export { TFCShare__factory } from "./factories/TFCShare__factory";
 export { TurboFil__factory } from "./factories/TurboFil__factory";

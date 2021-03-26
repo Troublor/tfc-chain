@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 /// @dev When using this Vault, each address should correspond to one vault.
 library TimeVault {
     struct HoldableVault {
-
+        string[] shards;
     }
 
     /// @notice Give reword to the vault. The reward is attached to an unlock timestamp, after which the value can be withdrawn.

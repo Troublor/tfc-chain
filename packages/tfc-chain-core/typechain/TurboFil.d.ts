@@ -12,6 +12,7 @@ import {
   Contract,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -23,20 +24,23 @@ interface TurboFilInterface extends ethers.utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "REGISTER_ROLE()": FunctionFragment;
-    "accounts(address)": FunctionFragment;
-    "fnodeMapping(string)": FunctionFragment;
+    "REWARD_ROLE()": FunctionFragment;
+    "SEED_ROLE()": FunctionFragment;
+    "distributeTFC()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "mobileMapping(string)": FunctionFragment;
-    "register(address)": FunctionFragment;
-    "registerFNode(string,string,address)": FunctionFragment;
-    "registerMobile(string)": FunctionFragment;
-    "registerRNode(string,address)": FunctionFragment;
+    "initialize(address,address,address,address,address)": FunctionFragment;
+    "proposedSeedMapping(string)": FunctionFragment;
+    "registerRNode(address,string)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
     "rnodeMapping(string)": FunctionFragment;
+    "submitSeed(string)": FunctionFragment;
+    "submitSeedEvaluation(string,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
+    "verify()": FunctionFragment;
+    "verifySector(string)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -47,10 +51,14 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "REGISTER_ROLE",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "accounts", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "fnodeMapping",
-    values: [string]
+    functionFragment: "REWARD_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "SEED_ROLE", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "distributeTFC",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -65,16 +73,11 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "mobileMapping",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "register", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "registerFNode",
-    values: [string, string, string]
+    functionFragment: "initialize",
+    values: [string, string, string, string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "registerMobile",
+    functionFragment: "proposedSeedMapping",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -93,9 +96,19 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "rnodeMapping",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "submitSeed", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "submitSeedEvaluation",
+    values: [string, boolean]
+  ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "verify", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "verifySector",
+    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -106,9 +119,13 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "REGISTER_ROLE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "accounts", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "fnodeMapping",
+    functionFragment: "REWARD_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "SEED_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "distributeTFC",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -117,17 +134,9 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "mobileMapping",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "registerFNode",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "registerMobile",
+    functionFragment: "proposedSeedMapping",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -143,28 +152,36 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "rnodeMapping",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "submitSeed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "submitSeedEvaluation",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "verifySector",
+    data: BytesLike
+  ): Result;
 
   events: {
-    "Register(address,address)": EventFragment;
-    "RegisterFNode(address,string,address,address)": EventFragment;
-    "RegisterMobile(address,string)": EventFragment;
-    "RegisterRNode(address,string,address)": EventFragment;
+    "EvaluateSeed(address,string,bool)": EventFragment;
+    "RegisterRNode(address,address,string)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
+    "SubmitSeed(address,string)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Register"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RegisterFNode"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RegisterMobile"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "EvaluateSeed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterRNode"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SubmitSeed"): EventFragment;
 }
 
 export class TurboFil extends Contract {
@@ -219,26 +236,21 @@ export class TurboFil extends Contract {
 
     "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    accounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, boolean] & { recommender: string; registered: boolean }
-    >;
+    REWARD_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "accounts(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, boolean] & { recommender: string; registered: boolean }
-    >;
+    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+    SEED_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "fnodeMapping(string)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    "SEED_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    distributeTFC(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "distributeTFC()"(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -271,56 +283,59 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+    initialize(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    "mobileMapping(string)"(
+    "initialize(address,address,address,address,address)"(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    proposedSeedMapping(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<
+      [string, string, BigNumber, BigNumber, BigNumber] & {
+        submitter: string;
+        afid: string;
+        timestamp: BigNumber;
+        likes: BigNumber;
+        dislikes: BigNumber;
+      }
+    >;
 
-    register(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "register(address)"(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "registerFNode(string,string,address)"(
-      id: string,
-      rnode_id: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "registerFNode(string,address,address)"(
-      id: string,
-      rnode: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    registerMobile(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "registerMobile(string)"(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "proposedSeedMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, BigNumber, BigNumber, BigNumber] & {
+        submitter: string;
+        afid: string;
+        timestamp: BigNumber;
+        likes: BigNumber;
+        dislikes: BigNumber;
+      }
+    >;
 
     registerRNode(
-      id: string,
-      bind_address: string,
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "registerRNode(string,address)"(
-      id: string,
-      bind_address: string,
+    "registerRNode(address,string)"(
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -355,6 +370,28 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    submitSeed(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "submitSeed(string)"(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    submitSeedEvaluation(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "submitSeedEvaluation(string,bool)"(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -364,6 +401,24 @@ export class TurboFil extends Contract {
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    verify(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "verify()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    verifySector(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "verifySector(string)"(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -374,22 +429,21 @@ export class TurboFil extends Contract {
 
   "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  accounts(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<[string, boolean] & { recommender: string; registered: boolean }>;
+  REWARD_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "accounts(address)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<[string, boolean] & { recommender: string; registered: boolean }>;
+  "REWARD_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+  SEED_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "fnodeMapping(string)"(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  "SEED_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  distributeTFC(
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "distributeTFC()"(
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -422,56 +476,59 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  mobileMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+  initialize(
+    _rnodeFactory: string,
+    _sectorSubmissionShare: string,
+    _sectorVerificationShare: string,
+    _seedSubmissionShare: string,
+    _seedEvaluationShare: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  "mobileMapping(string)"(
+  "initialize(address,address,address,address,address)"(
+    _rnodeFactory: string,
+    _sectorSubmissionShare: string,
+    _sectorVerificationShare: string,
+    _seedSubmissionShare: string,
+    _seedEvaluationShare: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  proposedSeedMapping(
     arg0: string,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<
+    [string, string, BigNumber, BigNumber, BigNumber] & {
+      submitter: string;
+      afid: string;
+      timestamp: BigNumber;
+      likes: BigNumber;
+      dislikes: BigNumber;
+    }
+  >;
 
-  register(
-    recommender: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "register(address)"(
-    recommender: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "registerFNode(string,string,address)"(
-    id: string,
-    rnode_id: string,
-    bind_address: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "registerFNode(string,address,address)"(
-    id: string,
-    rnode: string,
-    bind_address: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  registerMobile(
-    phone: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "registerMobile(string)"(
-    phone: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "proposedSeedMapping(string)"(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, BigNumber, BigNumber, BigNumber] & {
+      submitter: string;
+      afid: string;
+      timestamp: BigNumber;
+      likes: BigNumber;
+      dislikes: BigNumber;
+    }
+  >;
 
   registerRNode(
-    id: string,
-    bind_address: string,
+    owner: string,
+    afid: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "registerRNode(string,address)"(
-    id: string,
-    bind_address: string,
+  "registerRNode(address,string)"(
+    owner: string,
+    afid: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -506,6 +563,28 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  submitSeed(
+    afid: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "submitSeed(string)"(
+    afid: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  submitSeedEvaluation(
+    seed_afid: string,
+    like: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "submitSeedEvaluation(string,bool)"(
+    seed_afid: string,
+    like: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
@@ -516,6 +595,24 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  verify(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "verify()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  verifySector(
+    sector_afid: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "verifySector(string)"(
+    sector_afid: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
@@ -525,26 +622,17 @@ export class TurboFil extends Contract {
 
     "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    accounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, boolean] & { recommender: string; registered: boolean }
-    >;
+    REWARD_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "accounts(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, boolean] & { recommender: string; registered: boolean }
-    >;
+    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+    SEED_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "fnodeMapping(string)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    "SEED_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    distributeTFC(overrides?: CallOverrides): Promise<void>;
+
+    "distributeTFC()"(overrides?: CallOverrides): Promise<void>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -577,50 +665,59 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<string>;
+    initialize(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    "mobileMapping(string)"(
+    "initialize(address,address,address,address,address)"(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposedSeedMapping(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<
+      [string, string, BigNumber, BigNumber, BigNumber] & {
+        submitter: string;
+        afid: string;
+        timestamp: BigNumber;
+        likes: BigNumber;
+        dislikes: BigNumber;
+      }
+    >;
 
-    register(recommender: string, overrides?: CallOverrides): Promise<void>;
-
-    "register(address)"(
-      recommender: string,
+    "proposedSeedMapping(string)"(
+      arg0: string,
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    "registerFNode(string,string,address)"(
-      id: string,
-      rnode_id: string,
-      bind_address: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "registerFNode(string,address,address)"(
-      id: string,
-      rnode: string,
-      bind_address: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    registerMobile(phone: string, overrides?: CallOverrides): Promise<void>;
-
-    "registerMobile(string)"(
-      phone: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, string, BigNumber, BigNumber, BigNumber] & {
+        submitter: string;
+        afid: string;
+        timestamp: BigNumber;
+        likes: BigNumber;
+        dislikes: BigNumber;
+      }
+    >;
 
     registerRNode(
-      id: string,
-      bind_address: string,
+      owner: string,
+      afid: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "registerRNode(string,address)"(
-      id: string,
-      bind_address: string,
+    "registerRNode(address,string)"(
+      owner: string,
+      afid: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -655,6 +752,25 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    submitSeed(afid: string, overrides?: CallOverrides): Promise<void>;
+
+    "submitSeed(string)"(
+      afid: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    submitSeedEvaluation(
+      seed_afid: string,
+      like: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "submitSeedEvaluation(string,bool)"(
+      seed_afid: string,
+      like: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -664,39 +780,36 @@ export class TurboFil extends Contract {
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    verify(overrides?: CallOverrides): Promise<void>;
+
+    "verify()"(overrides?: CallOverrides): Promise<void>;
+
+    verifySector(sector_afid: string, overrides?: CallOverrides): Promise<void>;
+
+    "verifySector(string)"(
+      sector_afid: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
-    Register(
-      addr: null,
-      recommender: null
+    EvaluateSeed(
+      evaluator: null,
+      afid: null,
+      like: null
     ): TypedEventFilter<
-      [string, string],
-      { addr: string; recommender: string }
+      [string, string, boolean],
+      { evaluator: string; afid: string; like: boolean }
     >;
-
-    RegisterFNode(
-      addr: null,
-      id: null,
-      rnode: null,
-      fnode: null
-    ): TypedEventFilter<
-      [string, string, string, string],
-      { addr: string; id: string; rnode: string; fnode: string }
-    >;
-
-    RegisterMobile(
-      addr: null,
-      phone: null
-    ): TypedEventFilter<[string, string], { addr: string; phone: string }>;
 
     RegisterRNode(
-      addr: null,
-      id: null,
-      rnode: null
+      owner: null,
+      rnode: null,
+      afid: null
     ): TypedEventFilter<
       [string, string, string],
-      { addr: string; id: string; rnode: string }
+      { owner: string; rnode: string; afid: string }
     >;
 
     RoleAdminChanged(
@@ -725,6 +838,11 @@ export class TurboFil extends Contract {
       [string, string, string],
       { role: string; account: string; sender: string }
     >;
+
+    SubmitSeed(
+      submitter: null,
+      afid: null
+    ): TypedEventFilter<[string, string], { submitter: string; afid: string }>;
   };
 
   estimateGas: {
@@ -736,18 +854,20 @@ export class TurboFil extends Contract {
 
     "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    accounts(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    REWARD_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "accounts(address)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    SEED_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "SEED_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    distributeTFC(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    fnodeMapping(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "fnodeMapping(string)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "distributeTFC()"(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getRoleAdmin(
@@ -784,56 +904,43 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    mobileMapping(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    initialize(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    "mobileMapping(string)"(
+    "initialize(address,address,address,address,address)"(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    proposedSeedMapping(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    register(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "register(address)"(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "registerFNode(string,string,address)"(
-      id: string,
-      rnode_id: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "registerFNode(string,address,address)"(
-      id: string,
-      rnode: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    registerMobile(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "registerMobile(string)"(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    "proposedSeedMapping(string)"(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     registerRNode(
-      id: string,
-      bind_address: string,
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "registerRNode(string,address)"(
-      id: string,
-      bind_address: string,
+    "registerRNode(address,string)"(
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -868,6 +975,28 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    submitSeed(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "submitSeed(string)"(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    submitSeedEvaluation(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "submitSeedEvaluation(string,bool)"(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -876,6 +1005,24 @@ export class TurboFil extends Contract {
     "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    verify(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "verify()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    verifySector(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "verifySector(string)"(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -892,24 +1039,20 @@ export class TurboFil extends Contract {
 
     "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    accounts(
-      arg0: string,
-      overrides?: CallOverrides
+    REWARD_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    SEED_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "SEED_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    distributeTFC(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "accounts(address)"(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    fnodeMapping(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "fnodeMapping(string)"(
-      arg0: string,
-      overrides?: CallOverrides
+    "distributeTFC()"(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
@@ -946,59 +1089,43 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    mobileMapping(
+    initialize(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initialize(address,address,address,address,address)"(
+      _rnodeFactory: string,
+      _sectorSubmissionShare: string,
+      _sectorVerificationShare: string,
+      _seedSubmissionShare: string,
+      _seedEvaluationShare: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposedSeedMapping(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "mobileMapping(string)"(
+    "proposedSeedMapping(string)"(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    register(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "register(address)"(
-      recommender: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "registerFNode(string,string,address)"(
-      id: string,
-      rnode_id: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "registerFNode(string,address,address)"(
-      id: string,
-      rnode: string,
-      bind_address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    registerMobile(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "registerMobile(string)"(
-      phone: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     registerRNode(
-      id: string,
-      bind_address: string,
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerRNode(string,address)"(
-      id: string,
-      bind_address: string,
+    "registerRNode(address,string)"(
+      owner: string,
+      afid: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1036,6 +1163,28 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    submitSeed(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "submitSeed(string)"(
+      afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    submitSeedEvaluation(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "submitSeedEvaluation(string,bool)"(
+      seed_afid: string,
+      like: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -1044,6 +1193,24 @@ export class TurboFil extends Contract {
     "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    verify(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "verify()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    verifySector(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "verifySector(string)"(
+      sector_afid: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
