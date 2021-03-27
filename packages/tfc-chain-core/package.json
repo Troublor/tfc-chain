@@ -10,8 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.0.0-rc.0",
-    "@openzeppelin/contracts-upgradeable": "^4.0.0-rc.0"
+    "@openzeppelin/contracts": "^4.0.0",
+    "@openzeppelin/contracts-upgradeable": "^4.0.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
