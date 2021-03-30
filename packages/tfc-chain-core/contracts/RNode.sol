@@ -3,55 +3,51 @@ pragma solidity >=0.8.0 <0.9.0;
 // SPDX-License-Identifier: MIT
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./lib/SectorVerification.sol";
 import "./interfaces.sol";
+import "./TFCStake.sol";
 
 contract RNode is AccessControl, IRNode {
-    ITFCShare sectorSubmissionShare;
-    ITFCShare sectorVerificationShare;
-    address public turbofil;
-    address public owner;
-    string public afid;
-
-    Sector[] public sectors;
+    bytes32 public constant SUBMIT_ROLE = keccak256("SUBMIT_ROLE");
     
-    SectorVerification.Verifiable[] verifications;
+    address public turboFil;
+    address public _owner;
+    string public _afid;
 
-    struct Sector {
-        string afid; // the afid of this sector
-        string merkleRoot; // the merkle root of this sector
-        uint256 verifications;
-    }
+    ISectorFactory _sectorFactory;
 
-    constructor(address _owner, string memory _afid, ITFCShare _sectorSubmissionShare, ITFCShare _sectorVerificationShare) {
-        turbofil = msg.sender;
-        owner = _owner;
-        afid = _afid;
-        sectorSubmissionShare = _sectorSubmissionShare;
-        sectorVerificationShare = _sectorVerificationShare;
+    /// @dev Only called by TurboFil
+    constructor(address owner_, string memory afid_, address turboFil_) {
+        _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
+        turboFil = turboFil_;
+        _owner = owner_;
+        _afid = afid_;
     }
     
-    /// @notice This function is typically called by TurboFil to save the sector submitted.
-    function submitSector(string calldata _afid, string calldata _merkleRoot) public override {
-        require(msg.sender == turbofil, "RNode: Caller does not have privilege to submit sector");
-        Sector memory sector = Sector({
-            afid: _afid,
-            merkleRoot: _merkleRoot,
-            verifications: 0
-        });
-        sectors.push(sector);
+    function afid() view external override returns (string memory) {
+        return _afid;
+    }
+    
+    function owner() view external override returns (address) {
+        return _owner;
+    }
+}
+
+contract RNodeFactory is IRNodeFactory, AccessControl {
+    bytes32 public constant PRODUCER_ROLE = keccak256("PRODUCER_ROLE"); // grant privilege to TurboFil
+    
+    address public turboFil;
+    
+    constructor(address turboFil_) {
+        _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
+        turboFil = turboFil_;
         
-        // mint sector submission share
-        sectorSubmissionShare.mint(address(this), 1);
+        // grant PRODUCER_ROLE for turboFil so that turboFil can register RNode.
+        _setupRole(PRODUCER_ROLE, turboFil_);
     }
-
-    /// @notice Given a sector and a seed, call Provable service to verify this sector.
-    function verifySector(string calldata sector_afid, string calldata seed_afid) public override {
-
-    }
-
-    /// @notice Callback called by Provable service, notifying the verification result.
-    function verifySector_callback(string calldata sector_afid, string calldata seed_afid, bool success) public override {
-
+    
+    function produce(address owner_, string calldata afid_, ISectorFactory sectorFactory_, ITFCShare sectorSubmissionShare_, ITFCShare sectorVerificationShare_, ITFCShare seedSubmissionShare_, ITFCShare seedEvaluationShare_) external override returns (IRNode) {
+        require(hasRole(PRODUCER_ROLE, msg.sender), "RNodeFactory: Caller does not have privilege to produce");
+        RNode rnode = new RNode(owner_, afid_, turboFil);
+        return rnode;
     }
 }

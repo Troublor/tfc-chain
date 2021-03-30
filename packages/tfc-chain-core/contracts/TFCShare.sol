@@ -2,7 +2,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./interfaces.sol";
 
@@ -12,7 +12,10 @@ import "./interfaces.sol";
 ///         With TFCS, we can record the shares in advance and TFC is distributed later based on total amount. 
 /// @dev This contract is specific to a group of shares, e.g., RNode mining share. 
 /// @dev This contract is able to iterate shares and distribute the paid TFC evenly to share holders.
-contract TFCShare is Ownable, ITFCShare {
+contract TFCShare is AccessControl, ITFCShare {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAYER_ROLE = keccak256("PAYER_ROLE");
+    
     using EnumerableSet for EnumerableSet.AddressSet;
     
     string public group;
@@ -23,11 +26,16 @@ contract TFCShare is Ownable, ITFCShare {
     
     event Reward(address recipient, uint256 amount, string group, uint256 timestamp);
     
-    constructor(string memory _group) {
+    constructor(string memory _group, address turboFil_) {
+        _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
         group = _group;
+        
+        _setupRole(MINTER_ROLE, turboFil_);
+        _setupRole(PAYER_ROLE, turboFil_);
     }
     
-    function mint(address recipient, uint256 amount) onlyOwner override public {
+    function mint(address recipient, uint256 amount) override public {
+        require(hasRole(MINTER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to mint");
         require(recipient != address(0), "TFCShare: mint to the zero address");
         if (amount == 0) return;
         if (shares[recipient] == 0) holders.add(recipient);
@@ -36,15 +44,16 @@ contract TFCShare is Ownable, ITFCShare {
     }
     
     /// @notice Distribute the given TFC value evenly to the share holders (proportional to the amount of shares);
-    function distributeTFC() onlyOwner payable override public {
+    function distributeTFC() payable override public {
+        require(hasRole(PAYER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to distribute TFC");
         uint256 value = msg.value;
         for (uint256 i = 0; i < holders.length(); i++) {
             address payable holder = payable(holders.at(i));
             uint256 share = shares[holder];
             uint256 amount = (share / totalSupply) * value;
             bool success = holder.send(amount);
-            // if failed to give reward, send back to owner of this contract, which should be TurboFil
-            if (!success) payable(owner()).transfer(amount);
+            // if failed to give reward, send back to the sender, which should be TurboFil
+            if (!success) payable(msg.sender).transfer(amount);
             
             // reset this recipient
             delete shares[holder];
