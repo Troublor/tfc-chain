@@ -5,6 +5,7 @@ pragma solidity >=0.8.0 <0.9.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./interfaces.sol";
+import "./Depositable.sol";
 
 /// @title TFCShare
 /// @notice This contract represents a share of TFC before reward is given. 
@@ -20,7 +21,7 @@ contract TFCShare is AccessControl, ITFCShare {
     
     string public group;
     
-    uint256 public totalSupply;
+    uint256 public override totalSupply;
     mapping(address=>uint256) public shares;
     EnumerableSet.AddressSet holders;
     
@@ -44,16 +45,23 @@ contract TFCShare is AccessControl, ITFCShare {
     }
     
     /// @notice Distribute the given TFC value evenly to the share holders (proportional to the amount of shares);
-    function distributeTFC() payable override public {
+    function distributeTFC(uint256 releaseTime_, string memory comment_) payable override public {
         require(hasRole(PAYER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to distribute TFC");
+        require(totalSupply > 0 , "TFCShare: No supply");
         uint256 value = msg.value;
         for (uint256 i = 0; i < holders.length(); i++) {
             address payable holder = payable(holders.at(i));
             uint256 share = shares[holder];
             uint256 amount = (share / totalSupply) * value;
-            bool success = holder.send(amount);
-            // if failed to give reward, send back to the sender, which should be TurboFil
-            if (!success) payable(msg.sender).transfer(amount);
+            
+            // first try to call deposit (if the address implements IDepositable);
+            IDepositable depositable = IDepositable(holder);
+            try depositable.deposit(releaseTime_, comment_) {} catch {
+                // fails to call deposit, try direct transfer
+                bool success = holder.send(amount);
+                // if failed to give reward, send back to the sender, which should be TurboFil
+                if (!success) payable(msg.sender).transfer(amount);
+            }
             
             // reset this recipient
             delete shares[holder];

@@ -4,6 +4,9 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces.sol";
+import "./RNode.sol";
+import "./Sector.sol";
+import "./Seed.sol";
 
 
 contract TurboFil is AccessControl {
@@ -12,32 +15,30 @@ contract TurboFil is AccessControl {
     bytes32 public constant SEED_ROLE = keccak256("SEED_ROLE");
     bytes32 public constant REWARD_ROLE = keccak256("REWARD_ROLE");
     bytes32 public constant VERIFY_ROLE = keccak256("VERIFY_ROLE");
-
-    IRNodeFactory _rnodeFactory;
-    ISectorFactory _sectorFactory;
-    ISeedFactory _seedFactory;
     
-    ITFCShare _sectorSubmissionShare;
-    ITFCShare _sectorVerificationShare;
-    ITFCShare _seedSubmissionShare;
-    ITFCShare _seedEvaluationShare;
+    ITFCShare _sectorSubmissionShare; // reward for sector submission, giving to rnode
+    ITFCShare _sectorVerificationShare; // reward for sector verification, giving to sector submitter
+    ITFCShare _seedSubmissionShare; // reward for seed submission, giving to seed submitter after the seed is used
+    ITFCShare _seedEvaluationShare; // reward for seed evaluation, giving to seed evaluator
+    
+    mapping(RNode=>bool) registeredRNodes;
+    mapping(Sector=>bool) submittedSectors;
+    mapping(Seed=>bool) submittedSeeds;
 
     event RegisterRNode(address owner, address rnode, string afid);
-    event SubmitSeed(address submitter, string afid);
+    event SubmitSector(address submitter, address sector, string afid);
+    event SubmitSeed(address submitter, address seed, string afid);
     event EvaluateSeed(address evaluator, string afid, bool like);
+    event VerifySector(address sector, address seed, bool success);
     
-    /// @dev should be deploy separately by admin
+    /// @dev should be deploy separately by admin.
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     
-    function initialize(address rnodeFactory_, address sectorFactory_, address seedFactory_, 
+    function initialize(
                 address sectorSubmissionShare_, address sectorVerificationShare_, address seedSubmissionShare_, address seedEvaluationShare_) public {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "TurboFil: Caller does not have privilege to initialize");
-        
-        _rnodeFactory = IRNodeFactory(rnodeFactory_);
-        _sectorFactory = ISectorFactory(sectorFactory_);
-        _seedFactory = ISeedFactory(seedFactory_);
         
         _sectorSubmissionShare = ITFCShare(sectorSubmissionShare_);
         _sectorVerificationShare = ITFCShare(sectorVerificationShare_);
@@ -50,16 +51,8 @@ contract TurboFil is AccessControl {
     function registerRNode(address owner_, string calldata afid_) public returns (IRNode) {
         require(hasRole(REGISTER_ROLE, msg.sender), "TurboFil: Caller does not have privilege to register RNode");
         
-        IRNode rnode = _rnodeFactory.produce(owner_, afid_, _sectorFactory, _sectorSubmissionShare, _sectorVerificationShare, _seedSubmissionShare, _seedEvaluationShare);
-       
-        // grant PRODUCER_ROLE in sectorFactory to rnode, so that the rnode is able to create Sector contracts. 
-        bytes32 PRODUCER_ROLE = keccak256("PRODUCER_ROLE"); // same PRODUCER_ROLE as in SectorFactory
-        _sectorFactory.grantRole(PRODUCER_ROLE, address(rnode));
-        
-        // grant MINTER_ROLE in TFCShare to rnode, so that the r node is able to mint sectorSubmissionShare. 
-        bytes32 MINTER_ROLE = keccak256("MINTER_ROLE");
-        _sectorSubmissionShare.grantRole(MINTER_ROLE, address(rnode));
-        
+        RNode rnode = new RNode(owner_, afid_, address(this));
+        registeredRNodes[rnode] = true;
         emit RegisterRNode(owner_, address(rnode), afid_);
         
         return rnode;
@@ -70,47 +63,59 @@ contract TurboFil is AccessControl {
         require(submitter_ == rnode_.owner(), "TurboFil: Sector submitter is not the owner");
         require(msg.value == 3 ether, "TurboFil: Sector submission requires 3 TFC deposit");
         
-        // create a deposit, locking for 12 weeks
-        TFCStake deposit = new TFCStake{value: msg.value}(payable(rnode_.owner()), block.timestamp + 12 weeks, payable(address(this)));
-        
+        // locking for 12 weeks
         // create a new sector contract
-        ISector sector = _sectorFactory.produce(submitter_, address(rnode_), afid_, merkleRoot_, deposit, _sectorVerificationShare);
+        Sector sector = new Sector{value: msg.value}(submitter_, address(rnode_), afid_, merkleRoot_, _sectorVerificationShare);
         
-        // grant PUNISH_ROLE in WTFCLock to sector, so that the sector is able to punish the locked TFC when fail to verify. 
-        bytes32 PUNISH_ROLE = keccak256("PUNISH_ROLE"); // same PUNISH_ROLE as in WTFCLock
-        sector.grantRole(PUNISH_ROLE, address(sector));
+        bytes32 role = keccak256("MINTER_ROLE");
+        _sectorVerificationShare.grantRole(role, address(sector));
 
-        // mint sector submission share
-        _sectorSubmissionShare.mint(address(this), 1);
+        role = keccak256("VERIFY_ROLE");
+        sector.grantRole(role, address(this));
+        
+        submittedSectors[sector] = true;
+        
+        emit SubmitSector(submitter_, address(sector), afid_);
     }
     
     /// @notice A mobile user uses this function to submit a seed (photo).
     /// @dev A submitted seed should not get reward until it gets at least 3 likes.
     function submitSeed(address submitter_, string calldata afid_) public returns (ISeed) {
         require(hasRole(SEED_ROLE, msg.sender), "TurboFil: Caller does not have privilege to submit seed");
-        ISeed seed = _seedFactory.produce({
+        Seed seed = new Seed({
             submitter_: submitter_,
             afid_: afid_,
+            seedSubmissionShare_: _seedSubmissionShare,
             seedEvaluationShare_: _seedEvaluationShare
         });
         
         // grant MINTER_ROLE in TFCShare to seed, so that the seed is able to mint seedEvaluationShare. 
         bytes32 MINTER_ROLE = keccak256("MINTER_ROLE");
         _seedEvaluationShare.grantRole(MINTER_ROLE, address(seed));
+        _seedSubmissionShare.grantRole(MINTER_ROLE, address(seed));
         
-        emit SubmitSeed(submitter_, afid_);
+        emit SubmitSeed(submitter_, address(seed), afid_);
+        
+        submittedSeeds[seed] = true;
+        
         return seed;
     }
     
-    function verifySector(ISector sector_, ISeed seed_, bool success_) public {
+    function verifySector(Sector sector_, Seed seed_, bool success_) public {
         require(hasRole(VERIFY_ROLE, msg.sender), "TurboFil: Caller does not have privilege to verify sector");
-        require(!sector_.invalid(), "TurboFil: Sector is invalid to verify");
-        require(!seed_.consumed(), "TurboFil: Seed is already consumed");
+        require(submittedSectors[sector_], "TurboFil: Unknown sector");
+        require(submittedSeeds[seed_], "TurboFil: Unknown seed");
+        
+        bytes32 role = keccak256("CONSUMER_ROLE");
+        seed_.grantRole(role, address(sector_));
+        
         sector_.submitVerification(seed_, success_);
+        
+        emit VerifySector(address(sector_), address(seed_), success_);
     }
 
     /// @notice This function receive the total amount of TFC that should be released today and distribute to users.
-    function distributeTFC() payable public {
+    function distributeTFC(uint256 releaseTime_, string memory comment_) payable public {
         require(hasRole(REWARD_ROLE, msg.sender), "TurboFil: Caller does not have privilege to distribute TFC");
         uint256 miningProportion = 1;
         uint256 verifyingProportion = 1;
@@ -119,15 +124,31 @@ contract TurboFil is AccessControl {
         uint256 totalProportion = miningProportion + verifyingProportion;
         
         uint256 miningReward = (miningProportion / totalProportion) * msg.value;
-        _sectorSubmissionShare.distributeTFC{value: miningReward}();
+        if (_sectorSubmissionShare.totalSupply() > 0){
+            _sectorSubmissionShare.distributeTFC{value: miningReward}(releaseTime_, comment_);
+        }else{
+            payable(msg.sender).transfer(miningReward);
+        }
         
         uint256 verifyingReward = (verifyingProportion / totalProportion) * msg.value;
-        _sectorVerificationShare.distributeTFC{value: verifyingReward}();
+        if (_sectorVerificationShare.totalSupply() > 0) {
+            _sectorVerificationShare.distributeTFC{value: verifyingReward}(releaseTime_, comment_);
+        }else{
+            payable(msg.sender).transfer(verifyingReward);
+        }
         
         uint256 seedingReward = (seedingProportion / totalProportion) * msg.value;
-        _seedSubmissionShare.distributeTFC{value: seedingReward}();
+        if (_seedSubmissionShare.totalSupply() > 0) {
+            _seedSubmissionShare.distributeTFC{value: seedingReward}(releaseTime_, comment_);
+        }else{
+            payable(msg.sender).transfer(seedingReward);
+        }
         
         uint256 evaluatingReward = (evaluatingProportion / totalProportion) * msg.value;
-        _seedEvaluationShare.distributeTFC{value: evaluatingReward}();
+        if (_seedEvaluationShare.totalSupply() > 0) {
+            _seedEvaluationShare.distributeTFC{value: evaluatingReward}(releaseTime_, comment_);
+        }else{
+            payable(msg.sender).transfer(evaluatingReward);
+        }
     }
 }

@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import {ethers} from 'hardhat';
-import {TurboFil, TurboFil__factory} from '../typechain';
+import {TurboFil, TurboFil__factory} from '../src/typechain';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 
 describe('TurboFil Contract', () => {
