@@ -126,7 +126,7 @@ interface TFCShareInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "Reward(address,uint256,string,uint256)": EventFragment;
+    "Reward(address,uint256,uint256)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
@@ -537,16 +537,10 @@ export class TFCShare extends Contract {
     Reward(
       recipient: null,
       amount: null,
-      group: null,
       timestamp: null
     ): TypedEventFilter<
-      [string, BigNumber, string, BigNumber],
-      {
-        recipient: string;
-        amount: BigNumber;
-        group: string;
-        timestamp: BigNumber;
-      }
+      [string, BigNumber, BigNumber],
+      { recipient: string; amount: BigNumber; timestamp: BigNumber }
     >;
 
     RoleAdminChanged(

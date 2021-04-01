@@ -4,7 +4,7 @@ import tfcShareArtifact = require('../artifacts/contracts/TFCShare.sol/TFCShare.
 import rnodeArtifact = require('../artifacts/contracts/RNode.sol/RNode.json');
 import sectorArtifact = require('../artifacts/contracts/Sector.sol/Sector.json');
 import seedArtifact = require('../artifacts/contracts/Seed.sol/Seed.json');
-import { RNode__factory, Sector__factory, Seed__factory, TFCShare__factory, TurboFil, TurboFil__factory } from './typechain';
+import { RNode__factory, Sector__factory, Seed__factory, TFCShare, TFCShare__factory, TurboFil, TurboFil__factory } from './typechain';
 interface Contracts {
     TurboFil: {
         artifact: typeof turboFilArtifact;
@@ -14,6 +14,10 @@ interface Contracts {
     TFCShare: {
         artifact: typeof tfcShareArtifact;
         factory: TFCShare__factory;
+        sectorSubmissionShare: TFCShare;
+        sectorVerificationShare: TFCShare;
+        seedSubmissionShare: TFCShare;
+        seedEvaluationShare: TFCShare;
     };
     RNode: {
         artifact: typeof rnodeArtifact;

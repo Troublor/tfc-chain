@@ -39,6 +39,10 @@ function buildNetworks() {
             TFCShare: {
                 artifact: tfcShareArtifact,
                 factory: new ethers.ContractFactory(tfcShareArtifact.abi, tfcShareArtifact.bytecode),
+                sectorSubmissionShare: new ethers.Contract(deployment[network].SectorSubmissionShare, tfcShareArtifact.abi),
+                sectorVerificationShare: new ethers.Contract(deployment[network].SectorVerificationShare, tfcShareArtifact.abi),
+                seedSubmissionShare: new ethers.Contract(deployment[network].SeedSubmissionShare, tfcShareArtifact.abi),
+                seedEvaluationShare: new ethers.Contract(deployment[network].SeedEvaluationShare, tfcShareArtifact.abi),
             },
             RNode: {
                 artifact: rnodeArtifact,

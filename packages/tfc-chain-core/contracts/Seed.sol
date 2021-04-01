@@ -20,7 +20,7 @@ contract Seed is ISeed, AccessControl {
     
     mapping(address=>bool) _evaluated;
     
-    event SeedEvaluation(address seed, string afid, address evaluator, bool like);
+    event EvaluateSeed(address seed, string afid, address evaluator, bool like);
     
     constructor(address submitter_, string memory afid_, ITFCShare seedSubmissionShare_, ITFCShare seedEvaluationShare_) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -46,13 +46,15 @@ contract Seed is ISeed, AccessControl {
     }
     
     /// @notice To evaluate a seed by liking or disliking it. 
-    /// @dev Each address can only evaluate a seed once. 
+    /// @dev Each address can only evaluate a seed once.
+    /// @param evaluator_ address of the user who evaluate this seed.
+    /// @param like_ whether the user likes this seed (photo)
     function evaluate(address evaluator_, bool like_) public {
         require(!_evaluated[evaluator_], "Seed: Caller has already evaluated");
         _evaluated[evaluator_] = true; 
         if (like_) likes++;
         else dislikes++;
         _seedEvaluationShare.mint(evaluator_, 1);
-        emit SeedEvaluation(address(this), afid, evaluator_, like_);
+        emit EvaluateSeed(address(this), afid, evaluator_, like_);
     }
 }

@@ -28,7 +28,7 @@ interface TurboFilInterface extends ethers.utils.Interface {
     "SEED_ROLE()": FunctionFragment;
     "SUBMIT_ROLE()": FunctionFragment;
     "VERIFY_ROLE()": FunctionFragment;
-    "distributeTFC(uint256,string)": FunctionFragment;
+    "distributeTFC()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
@@ -65,7 +65,7 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "distributeTFC",
-    values: [BigNumberish, string]
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -168,7 +168,6 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "EvaluateSeed(address,string,bool)": EventFragment;
     "RegisterRNode(address,address,string)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
@@ -178,7 +177,6 @@ interface TurboFilInterface extends ethers.utils.Interface {
     "VerifySector(address,address,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "EvaluateSeed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterRNode"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
@@ -257,14 +255,10 @@ export class TurboFil extends Contract {
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
     distributeTFC(
-      releaseTime_: BigNumberish,
-      comment_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "distributeTFC(uint256,string)"(
-      releaseTime_: BigNumberish,
-      comment_: string,
+    "distributeTFC()"(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -429,14 +423,10 @@ export class TurboFil extends Contract {
   "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   distributeTFC(
-    releaseTime_: BigNumberish,
-    comment_: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "distributeTFC(uint256,string)"(
-    releaseTime_: BigNumberish,
-    comment_: string,
+  "distributeTFC()"(
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -600,17 +590,9 @@ export class TurboFil extends Contract {
 
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    distributeTFC(
-      releaseTime_: BigNumberish,
-      comment_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    distributeTFC(overrides?: CallOverrides): Promise<void>;
 
-    "distributeTFC(uint256,string)"(
-      releaseTime_: BigNumberish,
-      comment_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    "distributeTFC()"(overrides?: CallOverrides): Promise<void>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -701,7 +683,7 @@ export class TurboFil extends Contract {
       afid_: string,
       merkleRoot_: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     "submitSector(address,address,string,string)"(
       rnode_: string,
@@ -709,7 +691,7 @@ export class TurboFil extends Contract {
       afid_: string,
       merkleRoot_: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     submitSeed(
       submitter_: string,
@@ -749,15 +731,6 @@ export class TurboFil extends Contract {
   };
 
   filters: {
-    EvaluateSeed(
-      evaluator: null,
-      afid: null,
-      like: null
-    ): TypedEventFilter<
-      [string, string, boolean],
-      { evaluator: string; afid: string; like: boolean }
-    >;
-
     RegisterRNode(
       owner: null,
       rnode: null,
@@ -848,14 +821,10 @@ export class TurboFil extends Contract {
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     distributeTFC(
-      releaseTime_: BigNumberish,
-      comment_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "distributeTFC(uint256,string)"(
-      releaseTime_: BigNumberish,
-      comment_: string,
+    "distributeTFC()"(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1028,14 +997,10 @@ export class TurboFil extends Contract {
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     distributeTFC(
-      releaseTime_: BigNumberish,
-      comment_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "distributeTFC(uint256,string)"(
-      releaseTime_: BigNumberish,
-      comment_: string,
+    "distributeTFC()"(
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

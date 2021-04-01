@@ -25,7 +25,7 @@ contract TFCShare is AccessControl, ITFCShare {
     mapping(address=>uint256) public shares;
     EnumerableSet.AddressSet holders;
     
-    event Reward(address recipient, uint256 amount, string group, uint256 timestamp);
+    event Reward(address recipient, uint256 amount, uint256 timestamp);
     
     constructor(string memory _group, address turboFil_) {
         _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
@@ -67,7 +67,7 @@ contract TFCShare is AccessControl, ITFCShare {
             delete shares[holder];
             holders.remove(holder);
             
-            emit Reward(holder, amount, group, block.timestamp);
+            emit Reward(holder, amount, block.timestamp);
         }
         // reset totalSupply
         totalSupply = 0;

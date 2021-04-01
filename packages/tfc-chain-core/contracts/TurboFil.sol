@@ -28,7 +28,6 @@ contract TurboFil is AccessControl {
     event RegisterRNode(address owner, address rnode, string afid);
     event SubmitSector(address submitter, address sector, string afid);
     event SubmitSeed(address submitter, address seed, string afid);
-    event EvaluateSeed(address evaluator, string afid, bool like);
     event VerifySector(address sector, address seed, bool success);
     
     /// @dev should be deploy separately by admin.
@@ -46,9 +45,12 @@ contract TurboFil is AccessControl {
         _seedEvaluationShare = ITFCShare(seedEvaluationShare_);
     }
 
-    /// @notice Register a RNode
-    /// @dev This function create a RNode contract and save it in the mapping.
-    function registerRNode(address owner_, string calldata afid_) public returns (IRNode) {
+    /// @notice Register a RNode. Caller must have REGISTER_ROLE privilege.
+    /// @dev This function create a RNode contract.
+    /// @param owner_ address of the owner of the RNode
+    /// @param afid_ afid of the RNode
+    /// @return address of the created RNode contract
+    function registerRNode(address owner_, string calldata afid_) public returns (RNode) {
         require(hasRole(REGISTER_ROLE, msg.sender), "TurboFil: Caller does not have privilege to register RNode");
         
         RNode rnode = new RNode(owner_, afid_, address(this));
@@ -57,8 +59,15 @@ contract TurboFil is AccessControl {
         
         return rnode;
     }
-    
-    function submitSector(IRNode rnode_, address submitter_, string calldata afid_, string calldata merkleRoot_) payable public {
+
+    /// @notice Submit a sector. Caller must have SUBMIT_ROLE privilege. The transaction must pay 3 TFC as deposit.
+    /// @dev This function create a Sector contract corresponding to the submitted sector.
+    ///      The current design is that this function is typically called by an administrator on behalf of the sector owner.
+    /// @param rnode_ address of the RNode contract that this sector belongs to.
+    /// @param afid_ afid of the sector
+    /// @param merkleRoot_ merkle root of the sector
+    /// @return address of the created Sector contract
+    function submitSector(IRNode rnode_, address submitter_, string calldata afid_, string calldata merkleRoot_) payable public returns (Sector) {
         require(hasRole(SUBMIT_ROLE, msg.sender), "TurboFil: Caller does not have privilege to submit sector");
         require(submitter_ == rnode_.owner(), "TurboFil: Sector submitter is not the owner");
         require(msg.value == 3 ether, "TurboFil: Sector submission requires 3 TFC deposit");
@@ -76,11 +85,17 @@ contract TurboFil is AccessControl {
         submittedSectors[sector] = true;
         
         emit SubmitSector(submitter_, address(sector), afid_);
+
+        return sector;
     }
     
     /// @notice A mobile user uses this function to submit a seed (photo).
     /// @dev A submitted seed should not get reward until it gets at least 3 likes.
-    function submitSeed(address submitter_, string calldata afid_) public returns (ISeed) {
+    ///      The current design is that this function is typically called by an administrator on behalf of the seed submitter.
+    /// @param submitter_ address of the submitter
+    /// @param afid_ afid of the seed
+    /// @return address of the created Seed
+    function submitSeed(address submitter_, string calldata afid_) public returns (Seed) {
         require(hasRole(SEED_ROLE, msg.sender), "TurboFil: Caller does not have privilege to submit seed");
         Seed seed = new Seed({
             submitter_: submitter_,
@@ -100,7 +115,11 @@ contract TurboFil is AccessControl {
         
         return seed;
     }
-    
+
+    /// @notice Verify a sector with a seed. Submit the verification result.
+    /// @dev The current design is that this function is typically called by an administrator, which is subject to change in the future.
+    /// @param sector_ address of the sector to verify
+    /// @param seed_ address of the seed to use
     function verifySector(Sector sector_, Seed seed_, bool success_) public {
         require(hasRole(VERIFY_ROLE, msg.sender), "TurboFil: Caller does not have privilege to verify sector");
         require(submittedSectors[sector_], "TurboFil: Unknown sector");
@@ -115,7 +134,9 @@ contract TurboFil is AccessControl {
     }
 
     /// @notice This function receive the total amount of TFC that should be released today and distribute to users.
-    function distributeTFC(uint256 releaseTime_, string memory comment_) payable public {
+    ///         Caller must pay a certain amount of TFC to distribute across miners based on their contribution.
+    /// @dev The current design is that this function is typically called by an administrator, which is subject to change in the future.
+    function distributeTFC() payable public {
         require(hasRole(REWARD_ROLE, msg.sender), "TurboFil: Caller does not have privilege to distribute TFC");
         uint256 miningProportion = 1;
         uint256 verifyingProportion = 1;
@@ -125,28 +146,28 @@ contract TurboFil is AccessControl {
         
         uint256 miningReward = (miningProportion / totalProportion) * msg.value;
         if (_sectorSubmissionShare.totalSupply() > 0){
-            _sectorSubmissionShare.distributeTFC{value: miningReward}(releaseTime_, comment_);
+            _sectorSubmissionShare.distributeTFC{value: miningReward}(block.timestamp + 12 weeks, "Sector Submission Reward");
         }else{
             payable(msg.sender).transfer(miningReward);
         }
         
         uint256 verifyingReward = (verifyingProportion / totalProportion) * msg.value;
         if (_sectorVerificationShare.totalSupply() > 0) {
-            _sectorVerificationShare.distributeTFC{value: verifyingReward}(releaseTime_, comment_);
+            _sectorVerificationShare.distributeTFC{value: verifyingReward}(block.timestamp + 12 weeks, "Sector Verification Reward");
         }else{
             payable(msg.sender).transfer(verifyingReward);
         }
         
         uint256 seedingReward = (seedingProportion / totalProportion) * msg.value;
         if (_seedSubmissionShare.totalSupply() > 0) {
-            _seedSubmissionShare.distributeTFC{value: seedingReward}(releaseTime_, comment_);
+            _seedSubmissionShare.distributeTFC{value: seedingReward}(block.timestamp, "Seed Submission Reward");
         }else{
             payable(msg.sender).transfer(seedingReward);
         }
         
         uint256 evaluatingReward = (evaluatingProportion / totalProportion) * msg.value;
         if (_seedEvaluationShare.totalSupply() > 0) {
-            _seedEvaluationShare.distributeTFC{value: evaluatingReward}(releaseTime_, comment_);
+            _seedEvaluationShare.distributeTFC{value: evaluatingReward}(block.timestamp, "Seed Evaluation Reward");
         }else{
             payable(msg.sender).transfer(evaluatingReward);
         }

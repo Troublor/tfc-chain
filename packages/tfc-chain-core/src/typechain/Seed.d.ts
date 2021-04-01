@@ -122,16 +122,16 @@ interface SeedInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "EvaluateSeed(address,string,address,bool)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
-    "SeedEvaluation(address,string,address,bool)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "EvaluateSeed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SeedEvaluation"): EventFragment;
 }
 
 export class Seed extends Contract {
@@ -529,6 +529,16 @@ export class Seed extends Contract {
   };
 
   filters: {
+    EvaluateSeed(
+      seed: null,
+      afid: null,
+      evaluator: null,
+      like: null
+    ): TypedEventFilter<
+      [string, string, string, boolean],
+      { seed: string; afid: string; evaluator: string; like: boolean }
+    >;
+
     RoleAdminChanged(
       role: BytesLike | null,
       previousAdminRole: BytesLike | null,
@@ -554,16 +564,6 @@ export class Seed extends Contract {
     ): TypedEventFilter<
       [string, string, string],
       { role: string; account: string; sender: string }
-    >;
-
-    SeedEvaluation(
-      seed: null,
-      afid: null,
-      evaluator: null,
-      like: null
-    ): TypedEventFilter<
-      [string, string, string, boolean],
-      { seed: string; afid: string; evaluator: string; like: boolean }
     >;
   };
 

@@ -125,4 +125,14 @@ module.exports = {
         target: 'ethers-v5',
         runOnCompile: true,
     },
+    networks: {
+        hardhat: {},
+        development: {
+            url: 'http://localhost:8545',
+            chainId: 9500,
+            from: 'd8444321ba7f99883a20ff2157a4e419f92e6fc5',
+            accounts: [
+            ],
+        },
+    },
 } as HardhatUserConfig;

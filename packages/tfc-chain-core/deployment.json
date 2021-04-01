@@ -1,5 +1,9 @@
 {
   "development": {
-    "TurboFil": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    "TurboFil": "0xa070801251679385035109B8ea5bBC93fb662E6b",
+    "SectorSubmissionShare": "0x27F008Efc505FcfcE02BE181D45ddf31227BA6a1",
+    "SectorVerificationShare": "0xC4Aeb24897997C98faAfb4dcA2713c9cfee63434",
+    "SeedSubmissionShare": "0xF85B3D27BdE2E7829c43a63C60Dbe4E6C4D10891",
+    "SeedEvaluationShare": "0x4286c373f65148d990e10e3e1ebEcBd888A7ebc4"
   }
 }
