@@ -62,3 +62,7 @@ Sector的验证过程由Provable服务周期性（或随机）地发起。
 - 验证结果达成共识（较少数量/一致结果，较大数量/多数结果）
 
 根据验证结果的共识，对这个sector奖励（发放TFC）或惩罚（扣除押金）。
+
+## 实现
+智能合约的实现在[`./packages/tfc-chain-core/contracts`](./packages/tfc-chain-core/contracts).
+智能合约的使用文档在[`./packages/tfc-chain-core/README.md`](./packages/tfc-chain-core).
