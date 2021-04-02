@@ -181,3 +181,9 @@ await tx.wait(1);
 [`src/playground/index.ts`](./src/playground/index.ts)文件中的每一个函数是一个使用Mock环境调用智能合约的例子。
 你可以参考其中的用法，在尝试调用智能合约。
 这在开发阶段非常有用。
+
+```typescript
+import * as mockTfc from '@tfc-chain/core/src/playground';
+
+mockTfc.getSeedEvaluationEventsEmittedInHistory();
+```
