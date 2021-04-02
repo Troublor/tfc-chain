@@ -5,7 +5,7 @@ import rnodeArtifact = require('../artifacts/contracts/RNode.sol/RNode.json');
 import sectorArtifact = require('../artifacts/contracts/Sector.sol/Sector.json');
 import seedArtifact = require('../artifacts/contracts/Seed.sol/Seed.json');
 import { RNode__factory, Sector__factory, Seed__factory, TFCShare, TFCShare__factory, TurboFil, TurboFil__factory } from './typechain';
-interface Contracts {
+export interface Contracts {
     TurboFil: {
         artifact: typeof turboFilArtifact;
         factory: TurboFil__factory;
