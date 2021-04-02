@@ -14,7 +14,7 @@ import {
     TurboFil__factory,
 } from './typechain';
 
-interface Contracts {
+export interface Contracts {
     TurboFil: {
         artifact: typeof turboFilArtifact,
         factory: TurboFil__factory,

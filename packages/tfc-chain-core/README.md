@@ -172,3 +172,12 @@ const tx = await turbofil.registerRNode(...);
 // 等待交易被至少一个区块确认
 await tx.wait(1);
 ```
+
+## Playground Functions
+
+[`src/playground/index.ts`](./src/playground/index.ts)中有一些调用智能合约以及监听事件的例子。
+
+其中实现了一个Mock运行环境，可以在本地环境模拟智能合约的调用。
+[`src/playground/index.ts`](./src/playground/index.ts)文件中的每一个函数是一个使用Mock环境调用智能合约的例子。
+你可以参考其中的用法，在尝试调用智能合约。
+这在开发阶段非常有用。
