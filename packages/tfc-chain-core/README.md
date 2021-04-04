@@ -1,5 +1,7 @@
 # TurboFil 智能合约设计
 
+[![npm version](https://badge.fury.io/js/%40tfc-chain%2Fcore.svg)](https://badge.fury.io/js/%40tfc-chain%2Fcore)
+
 ## 数据结构
 TFC-Chain中，每一个RNode，Sector，Seed都对应一个智能合约。
 注册RNode就相当于在链上创建为这个RNode创建一个智能合约。
