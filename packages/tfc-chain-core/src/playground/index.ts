@@ -1,7 +1,7 @@
 import {MockEnvironment} from './mock';
 import {networks} from '../defines';
 import assert from 'assert';
-import {EventFilter} from 'ethers';
+import {ethers, EventFilter} from 'ethers';
 
 const mockEnv: MockEnvironment | undefined = undefined;
 
@@ -91,6 +91,35 @@ export async function getSeedEvaluationEventsEmittedInHistory(): Promise<void> {
         const s = description.args.like ? 'thumb up' : 'thumb down';
         console.log(`User ${description.args.evaluator} gives a ${s} to Seed ${log.address}`);
     }
+}
+
+export async function listenRNodeForReceivingTFC(): Promise<void> {
+    const mock = await setupMockEnvironment();
+    const [admin, rnodeOwner, otherUser] = mock.signers;
+
+    // register a RNode
+    const tx = await networks.mock.TurboFil.contract.connect(admin).registerRNode(rnodeOwner.address, 'afid');
+    const receipt = await tx.wait(1);
+    const registerEvent = receipt.events?.find(ev => ev.event === 'RegisterRNode');
+    if (!registerEvent) {
+        throw new Error('This shouldn\'t happen, a successful transaction must emit RegisterRNode event.');
+    }
+    // Get RNode contract instance with its address
+    const rnodeAddress = registerEvent.args?.rnode;
+    const rnode = networks.mock.RNode.factory.attach(rnodeAddress);
+
+    // listen to ReceiveTFC event on RNode contract
+    const filter = rnode.filters.ReceiveTFC(null, null);
+    rnode.connect(rnodeOwner).on(filter, (from, value)=>{
+        console.log(`Receive ${ethers.utils.formatEther(value)} TFC from ${from}`);
+    });
+
+    // someone else send TFC to the rnode
+    await otherUser.sendTransaction({
+        to: rnodeAddress,
+        value: ethers.utils.parseEther('1'),
+    });
+    // The previous listener should got the transferred TFC
 }
 
 export * from './mock';

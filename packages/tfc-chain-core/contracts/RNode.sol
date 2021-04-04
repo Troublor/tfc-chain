@@ -12,12 +12,19 @@ contract RNode is AccessControl, IRNode {
     address public override owner;
     string public override afid;
     
+    event ReceiveTFC(address from, uint256 value);
+    
     /// @dev Only called by TurboFil
     constructor(address owner_, string memory afid_, address turboFil_) {
         _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
         turboFil = turboFil_;
         owner = owner_;
         afid = afid_;
+    }
+    
+    /// @notice receive ether
+    receive() payable external {
+        emit ReceiveTFC(msg.sender, msg.value);
     }
 }
 

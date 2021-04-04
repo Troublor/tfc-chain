@@ -98,11 +98,13 @@ interface RNodeInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "turboFil", data: BytesLike): Result;
 
   events: {
+    "ReceiveTFC(address,uint256)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "ReceiveTFC"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -411,6 +413,14 @@ export class RNode extends Contract {
   };
 
   filters: {
+    ReceiveTFC(
+      from: null,
+      value: null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { from: string; value: BigNumber }
+    >;
+
     RoleAdminChanged(
       role: BytesLike | null,
       previousAdminRole: BytesLike | null,

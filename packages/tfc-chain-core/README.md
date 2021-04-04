@@ -138,6 +138,14 @@ event Reward(address recipient, uint256 amount, uint256 timestamp);
 ```
 链下程序可以监听/检索这个事件来获取账户的收益历史。
 
+### RNode合约
+
+当RNode合约收到TFC转账之后，会发出以下事件：
+```solidity
+event ReceiveTFC(address from, uint256 value);
+```
+链下程序可以监听这个事件以获知用户向RNode的转账。
+
 ## @tfc-chain/core 
 
 当前测试版合约已经部署在crypto1测试网络上，部署的合约可以通过`@tfc-chain/core` npm package获得。

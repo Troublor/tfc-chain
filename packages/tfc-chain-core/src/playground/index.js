@@ -13,10 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSeedEvaluationEventsEmittedInHistory = exports.listenToSeedSubmissionEvent = exports.registerRNode = void 0;
+exports.listenRNodeForReceivingTFC = exports.getSeedEvaluationEventsEmittedInHistory = exports.listenToSeedSubmissionEvent = exports.registerRNode = void 0;
 const mock_1 = require("./mock");
 const defines_1 = require("../defines");
 const assert_1 = __importDefault(require("assert"));
+const ethers_1 = require("ethers");
 const mockEnv = undefined;
 async function setupMockEnvironment() {
     if (mockEnv) {
@@ -97,5 +98,31 @@ async function getSeedEvaluationEventsEmittedInHistory() {
     }
 }
 exports.getSeedEvaluationEventsEmittedInHistory = getSeedEvaluationEventsEmittedInHistory;
+async function listenRNodeForReceivingTFC() {
+    const mock = await setupMockEnvironment();
+    const [admin, rnodeOwner, otherUser] = mock.signers;
+    // register a RNode
+    const tx = await defines_1.networks.mock.TurboFil.contract.connect(admin).registerRNode(rnodeOwner.address, 'afid');
+    const receipt = await tx.wait(1);
+    const registerEvent = receipt.events?.find(ev => ev.event === 'RegisterRNode');
+    if (!registerEvent) {
+        throw new Error('This shouldn\'t happen, a successful transaction must emit RegisterRNode event.');
+    }
+    // Get RNode contract instance with its address
+    const rnodeAddress = registerEvent.args?.rnode;
+    const rnode = defines_1.networks.mock.RNode.factory.attach(rnodeAddress);
+    // listen to ReceiveTFC event on RNode contract
+    const filter = rnode.filters.ReceiveTFC(null, null);
+    rnode.connect(rnodeOwner).on(filter, (from, value) => {
+        console.log(`Receive ${ethers_1.ethers.utils.formatEther(value)} TFC from ${from}`);
+    });
+    // someone else send TFC to the rnode
+    await otherUser.sendTransaction({
+        to: rnodeAddress,
+        value: ethers_1.ethers.utils.parseEther('1'),
+    });
+    // The previous listener should got the transferred TFC
+}
+exports.listenRNodeForReceivingTFC = listenRNodeForReceivingTFC;
 __exportStar(require("./mock"), exports);
 //# sourceMappingURL=index.js.map
