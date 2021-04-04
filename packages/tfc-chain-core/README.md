@@ -1,6 +1,7 @@
 # TurboFil 智能合约设计
 
 [![npm version](https://badge.fury.io/js/%40tfc-chain%2Fcore.svg)](https://badge.fury.io/js/%40tfc-chain%2Fcore)
+[Change Logs](./CHANGELOG.md)
 
 ## 数据结构
 TFC-Chain中，每一个RNode，Sector，Seed都对应一个智能合约。
