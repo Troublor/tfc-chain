@@ -49,15 +49,24 @@ contract TFCShare is AccessControl, ITFCShare {
         require(hasRole(PAYER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to distribute TFC");
         require(totalSupply > 0 , "TFCShare: No supply");
         uint256 value = msg.value;
-        for (uint256 i = 0; i < holders.length(); i++) {
-            address payable holder = payable(holders.at(i));
+        while(holders.length() > 0) {
+            address payable holder = payable(holders.at(0));
             uint256 share = shares[holder];
-            uint256 amount = (share / totalSupply) * value;
+            uint256 amount = (share * value) / totalSupply;
             
             // first try to call deposit (if the address implements IDepositable);
-            IDepositable depositable = IDepositable(holder);
-            try depositable.deposit(releaseTime_, comment_) {} catch {
-                // fails to call deposit, try direct transfer
+            uint256 size;
+            // solhint-disable-next-line no-inline-assembly
+            assembly { size := extcodesize(holder) }
+            if (size > 0){
+                IDepositable depositable = IDepositable(holder);
+                try depositable.deposit(releaseTime_, comment_) {} catch {
+                    // fails to call deposit, try direct transfer
+                    bool success = holder.send(amount);
+                    // if failed to give reward, send back to the sender, which should be TurboFil
+                    if (!success) payable(msg.sender).transfer(amount);
+                }
+            }else {
                 bool success = holder.send(amount);
                 // if failed to give reward, send back to the sender, which should be TurboFil
                 if (!success) payable(msg.sender).transfer(amount);
