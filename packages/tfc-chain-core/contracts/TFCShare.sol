@@ -10,7 +10,7 @@ import "./Depositable.sol";
 /// @title TFCShare
 /// @notice This contract represents a share of TFC before reward is given. 
 ///         This token is helpful since we only know the total amount of TFC to distribute after each day ends.
-///         With TFCS, we can record the shares in advance and TFC is distributed later based on total amount. 
+///         We record the shares in advance and TFC is distributed later based on total amount given when calling distributeTFC.
 /// @dev This contract is specific to a group of shares, e.g., RNode mining share. 
 /// @dev This contract is able to iterate shares and distribute the paid TFC evenly to share holders.
 contract TFCShare is AccessControl, ITFCShare {
@@ -20,7 +20,7 @@ contract TFCShare is AccessControl, ITFCShare {
     using EnumerableSet for EnumerableSet.AddressSet;
     
     string public group;
-    
+
     uint256 public override totalSupply;
     mapping(address=>uint256) public shares;
     EnumerableSet.AddressSet holders;
@@ -34,7 +34,10 @@ contract TFCShare is AccessControl, ITFCShare {
         _setupRole(MINTER_ROLE, turboFil_);
         _setupRole(PAYER_ROLE, turboFil_);
     }
-    
+
+    /// @notice Mint a certain amount of shares to give to a recipient
+    /// @param recipient the address of recipient
+    /// @param amount the amount of shares to mint
     function mint(address recipient, uint256 amount) override public {
         require(hasRole(MINTER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to mint");
         require(recipient != address(0), "TFCShare: mint to the zero address");
@@ -45,6 +48,16 @@ contract TFCShare is AccessControl, ITFCShare {
     }
     
     /// @notice Distribute the given TFC value evenly to the share holders (proportional to the amount of shares);
+    ///         Caller should forward a certain amount of TFC to be evenly distributed according to shares of holders.
+    ///         The invocation will fail if there is no supply of shares currently.
+    ///         After the execution of this function, shares are reset.
+    ///         Reward events are emitted for each holders when TFC is distributed to him.
+    /// @dev Iterate all share holders and distributed forwarded TFC based on the shares held by each holder.
+    ///      If a holder is a contract implementing IDepositable, call IDepositable.deposit().
+    ///      Otherwise, send plain TFC to the holder.
+    ///      If the transfer fails, send the TFC to the caller of this function.
+    /// @param releaseTime_ the releaseTime of the distributed TFC, if the holder is a IDepositable contract.
+    /// @param comment_ the comment passed to IDepositable.deposit() function, if the holder is a IDepositable contract.
     function distributeTFC(uint256 releaseTime_, string memory comment_) payable override public {
         require(hasRole(PAYER_ROLE, msg.sender), "TFCShare: Caller does not have privilege to distribute TFC");
         require(totalSupply > 0 , "TFCShare: No supply");
