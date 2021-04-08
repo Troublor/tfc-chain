@@ -30,9 +30,9 @@ contract Depositable is AccessControl, IDepositable {
          punishPool = punishPool_;
     }
     
-    event Deposit(address beneficiary, uint256 releaseTime, uint256 amount);
-    event Release(address beneficiary, uint256 enforcedReleaseTime, uint256 realReleaseTime, uint256 amount);
-    event Punish(address beneficiary, uint256 amount);
+    event Deposit(uint256 position, address beneficiary, uint256 releaseTime, uint256 amount);
+    event Release(uint256 position, address beneficiary, uint256 enforcedReleaseTime, uint256 realReleaseTime, uint256 amount);
+    event Punish(uint256 position, address beneficiary, uint256 amount);
     
     function deposit(uint256 releaseTime_, string memory comment_) payable public override {
         require(hasRole(DEPOSIT_ROLE, msg.sender), "Depositable: Caller does not have privilege to deposit");
@@ -41,7 +41,7 @@ contract Depositable is AccessControl, IDepositable {
     
     function _deposit(uint256 releaseTime_, string memory comment_) internal {
         require(msg.value > 0, "Depositable: no TFC to deposit");
-        require(releaseTime_ >= block.timestamp, "Depositable: release time is before current time");
+        require(releaseTime_ >= block.timestamp, "Depositable: Release time is before current time");
 
         Dep memory d = Dep({
             amount: msg.value,
@@ -51,7 +51,7 @@ contract Depositable is AccessControl, IDepositable {
             comment: comment_
         });
         deposits.push(d);
-        emit Deposit(beneficiary, releaseTime_, msg.value);
+        emit Deposit(deposits.length - 1, beneficiary, releaseTime_, msg.value);
     }
     
     function release(uint256 index_) external {
@@ -62,23 +62,27 @@ contract Depositable is AccessControl, IDepositable {
         beneficiary.transfer(d.amount);
         d.released = true;
         deposits[index_] = d;
-        emit Release(beneficiary, d.releaseTime, block.timestamp, d.amount);
+        emit Release(index_, beneficiary, d.releaseTime, block.timestamp, d.amount);
     }
     
     function deposit(uint256 index_) view public returns (Dep memory) {
         require(index_ < deposits.length, "Depositable: Index out of range");
         return deposits[index_];
     }
+
+    function numDeposits() view public returns (uint256) {
+        return deposits.length;
+    }
     
     function _punish(uint256 index_) internal {
         Dep memory d = deposit(index_);
-        require(block.timestamp >= d.releaseTime, "Depositable: Current time is before release time");
+        require(block.timestamp < d.releaseTime, "Depositable: Current time is after release time");
         require(!d.punished, "Depositable: Deposit already punished");
         require(!d.released, "Depositable: Deposit already released");
         punishPool.transfer(d.amount);
         d.punished = true;
         deposits[index_] = d;
-        emit Punish(beneficiary, d.amount);
+        emit Punish(index_, beneficiary, d.amount);
     }
     
     function punish(uint256 index_) public {

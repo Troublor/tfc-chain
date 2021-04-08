@@ -30,6 +30,7 @@ interface DepositableInterface extends ethers.utils.Interface {
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
+    "numDeposits()": FunctionFragment;
     "punish(uint256)": FunctionFragment;
     "punishPool()": FunctionFragment;
     "release(uint256)": FunctionFragment;
@@ -69,6 +70,10 @@ interface DepositableInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "hasRole",
     values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "numDeposits",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "punish",
@@ -118,6 +123,10 @@ interface DepositableInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "numDeposits",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "punish", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "punishPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "release", data: BytesLike): Result;
@@ -132,9 +141,9 @@ interface DepositableInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "Deposit(address,uint256,uint256)": EventFragment;
-    "Punish(address,uint256)": EventFragment;
-    "Release(address,uint256,uint256,uint256)": EventFragment;
+    "Deposit(uint256,address,uint256,uint256)": EventFragment;
+    "Punish(uint256,address,uint256)": EventFragment;
+    "Release(uint256,address,uint256,uint256,uint256)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
@@ -259,6 +268,10 @@ export class Depositable extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    numDeposits(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     punish(
       index_: BigNumberish,
@@ -385,6 +398,10 @@ export class Depositable extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   punish(
     index_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -510,6 +527,10 @@ export class Depositable extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     punish(index_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     "punish(uint256)"(
@@ -565,30 +586,39 @@ export class Depositable extends Contract {
 
   filters: {
     Deposit(
+      position: null,
       beneficiary: null,
       releaseTime: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { beneficiary: string; releaseTime: BigNumber; amount: BigNumber }
+      [BigNumber, string, BigNumber, BigNumber],
+      {
+        position: BigNumber;
+        beneficiary: string;
+        releaseTime: BigNumber;
+        amount: BigNumber;
+      }
     >;
 
     Punish(
+      position: null,
       beneficiary: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber],
-      { beneficiary: string; amount: BigNumber }
+      [BigNumber, string, BigNumber],
+      { position: BigNumber; beneficiary: string; amount: BigNumber }
     >;
 
     Release(
+      position: null,
       beneficiary: null,
       enforcedReleaseTime: null,
       realReleaseTime: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber],
+      [BigNumber, string, BigNumber, BigNumber, BigNumber],
       {
+        position: BigNumber;
         beneficiary: string;
         enforcedReleaseTime: BigNumber;
         realReleaseTime: BigNumber;
@@ -685,6 +715,10 @@ export class Depositable extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     punish(
       index_: BigNumberish,
@@ -810,6 +844,10 @@ export class Depositable extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    numDeposits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     punish(
       index_: BigNumberish,

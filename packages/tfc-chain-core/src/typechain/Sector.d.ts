@@ -34,6 +34,7 @@ interface SectorInterface extends ethers.utils.Interface {
     "hasRole(bytes32,address)": FunctionFragment;
     "invalid()": FunctionFragment;
     "merkleRoot()": FunctionFragment;
+    "numDeposits()": FunctionFragment;
     "punish(uint256)": FunctionFragment;
     "punishPool()": FunctionFragment;
     "release(uint256)": FunctionFragment;
@@ -86,6 +87,10 @@ interface SectorInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "invalid", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "merkleRoot",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "numDeposits",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -153,6 +158,10 @@ interface SectorInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "invalid", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "merkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "numDeposits",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "punish", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "punishPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "release", data: BytesLike): Result;
@@ -177,9 +186,9 @@ interface SectorInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "Deposit(address,uint256,uint256)": EventFragment;
-    "Punish(address,uint256)": EventFragment;
-    "Release(address,uint256,uint256,uint256)": EventFragment;
+    "Deposit(uint256,address,uint256,uint256)": EventFragment;
+    "Punish(uint256,address,uint256)": EventFragment;
+    "Release(uint256,address,uint256,uint256,uint256)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
@@ -322,6 +331,10 @@ export class Sector extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<[string]>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<[string]>;
+
+    numDeposits(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     punish(
       index_: BigNumberish,
@@ -488,6 +501,10 @@ export class Sector extends Contract {
 
   "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
 
+  numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   punish(
     index_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -653,6 +670,10 @@ export class Sector extends Contract {
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
 
+    numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     punish(index_: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     "punish(uint256)"(
@@ -732,30 +753,39 @@ export class Sector extends Contract {
 
   filters: {
     Deposit(
+      position: null,
       beneficiary: null,
       releaseTime: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { beneficiary: string; releaseTime: BigNumber; amount: BigNumber }
+      [BigNumber, string, BigNumber, BigNumber],
+      {
+        position: BigNumber;
+        beneficiary: string;
+        releaseTime: BigNumber;
+        amount: BigNumber;
+      }
     >;
 
     Punish(
+      position: null,
       beneficiary: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber],
-      { beneficiary: string; amount: BigNumber }
+      [BigNumber, string, BigNumber],
+      { position: BigNumber; beneficiary: string; amount: BigNumber }
     >;
 
     Release(
+      position: null,
       beneficiary: null,
       enforcedReleaseTime: null,
       realReleaseTime: null,
       amount: null
     ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber],
+      [BigNumber, string, BigNumber, BigNumber, BigNumber],
       {
+        position: BigNumber;
         beneficiary: string;
         enforcedReleaseTime: BigNumber;
         realReleaseTime: BigNumber;
@@ -883,6 +913,10 @@ export class Sector extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    numDeposits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     punish(
       index_: BigNumberish,
@@ -1048,6 +1082,10 @@ export class Sector extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    numDeposits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "numDeposits()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     punish(
       index_: BigNumberish,
