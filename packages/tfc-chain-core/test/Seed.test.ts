@@ -82,6 +82,6 @@ describe('Seed contract', ()=>{
 
     test('should prevent being repeatedly evaluated by the same user', async ()=>{
         await expect(seed.connect(deployer).evaluate(deployer.address, true)).resolves;
-        await expect(seed.connect(submitter).evaluate(deployer.address, true)).rejects;
+        await expect(seed.connect(submitter).evaluate(deployer.address, true)).rejects.toThrow('Seed: Caller has already evaluated');
     });
 });
