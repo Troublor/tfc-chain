@@ -1,0 +1,10 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+artifacts/@openzeppelin
+artifacts/build-info
+artifacts/contracts/**/*.dbg.json
+cache
+contracts/.deps
+contracts/artifacts
+node_modules
+test

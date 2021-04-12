@@ -9,6 +9,7 @@
   "scripts": {
     "dev:remixd": "remixd -s ./contracts --remix-ide https://remix.ethereum.org",
     "compile": "hardhat compile && tsc",
+    "prepack": "yarn compile && yarn test",
     "test": "jest"
   },
   "dependencies": {
