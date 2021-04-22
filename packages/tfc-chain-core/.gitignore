@@ -5,3 +5,7 @@ contracts/artifacts
 src/**/*.js
 src/**/*.js.map
 src/**/*.d.ts
+lib
+env.yml
+artifacts/@openzeppelin
+artifacts/build-info

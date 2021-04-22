@@ -1,83 +1,92 @@
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.0 <0.9.0;
 
 // SPDX-License-Identifier: MIT
 
-import "./interfaces.sol";
-import "./Depositable.sol";
+contract Sector {
+    /// The reward queue. 
+    struct Queue {
+        mapping(uint256 => uint256) q;
+        uint256 start;
+        uint256 len;
+        uint256 total;
+        uint256 maxSize;
+    }
+    Queue _rewards;
 
-contract Sector is ISector, Depositable {
-    bytes32 public constant VERIFY_ROLE = keccak256("VERIFY_ROLE");
-    
-    ITFCShare _sectorVerificationShare;
+    /// The deposit of the sector
+    struct Deposit{
+        uint256 shard;
+        uint256 nShards;
+    }
+    Deposit _deposit;
 
-    string public afid;
-    string public merkleRoot;
-    address public submitter;
-    address public rnode;
-    uint256 public submittedTime;
+    address payable public owner;
+    bytes28 public afid;
+    address payable public turboFil;
+
+    event Verification(bytes28 seed, bool success, uint256 reward, uint256 punish);
     
-    bool public override invalid; 
-    
-    event SectorVerification(address sector, string sector_afid, string seed_afid, bool success);
-    
-    constructor(address submitter_, address rnode_, string memory afid_, string memory merkleRoot_, ITFCShare sectorVerificationShare_) Depositable(payable(rnode_), payable(msg.sender)) payable {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        
-        _deposit(block.timestamp + 12 weeks, "initial deposit");
-        
+    modifier onlyTurboFil {
+        require(msg.sender == turboFil, "Sector: can only be called by TurboFil");
+        _;
+    }
+
+    constructor(address payable owner_, bytes28 afid_, uint256 lockPeriod_) payable {
+        turboFil = payable(msg.sender);
+        owner = owner_;
         afid = afid_;
-        submitter = submitter_;
-        rnode = rnode_;
-        merkleRoot = merkleRoot_;
-        submittedTime = block.timestamp;
-        invalid = false;
-        
-        _sectorVerificationShare = sectorVerificationShare_;
-        _setupRole(DEPOSIT_ROLE, address(sectorVerificationShare_));
+        uint256 shard = msg.value / lockPeriod_;
+        _deposit.shard = shard;
+        _deposit.nShards = lockPeriod_;
     }
-    
-    /// @dev Called by TurboFil. TurboFil should have the VERIFY_ROLE.
-    function submitVerification(ISeed seed_, bool success_) public override {
-        require(hasRole(VERIFY_ROLE, msg.sender), "Sector: Caller does not have privilege to submit verification");
-        require(!invalid, "Sector: Sector is already invalidated");
-        seed_.consume();
-        if (success_) {
-            _sectorVerificationShare.mint(address(this), 1); // give reward to the sector submitter
+
+    function verify(bytes28 seed_, bool success_) onlyTurboFil payable public {
+        require(msg.value > 0, "Sector: verify reward cannot be zero");
+        uint256 reward;
+        uint256 punish;
+        if (success_){
+            reward = msg.value;
+            _reward(reward);
         } else {
-            invalid = true;
-            _punishAll(); // punish all, including initial deposit and rewards got for verifications.
+            punish = _punish();
+            turboFil.transfer(msg.value);
         }
-        emit SectorVerification(address(this), afid, seed_.afid(), success_);
+        emit Verification(seed_, success_, reward, punish);
+    }
+
+    function _reward(uint256 amount_) internal returns (uint256 unlocked) {
+        if (_deposit.nShards > 0) {
+            unlocked += _deposit.shard;
+            _deposit.nShards--;
+            _rewards.maxSize++;
+        }
+
+        _rewards.q[_rewards.start+_rewards.len] = amount_;
+        _rewards.total += amount_;
+        if (_rewards.len < _rewards.maxSize) {
+            _rewards.len += 1;
+        } else {
+            unlocked += _rewards.q[_rewards.start];
+            _rewards.start += 1;
+            _rewards.total -= unlocked;
+        }
+
+        if (unlocked > 0){
+            owner.transfer(unlocked);
+        }
+    }
+
+    function _punish() internal returns (uint256 amount) {
+        amount += _deposit.shard * _deposit.nShards;
+        amount += _rewards.total;
+        if(amount > 0){
+            turboFil.transfer(amount);
+        }
     }
     
-    function _punishAll() internal {
-        for (uint256 i = 0; i < deposits.length; i++) {
-            if (!deposits[i].released && !deposits[i].punished) {
-                _punish(i);
-            }
-        }
+    /* View functions */
+    
+    function lockedTFC() view public returns(uint256) {
+        return _rewards.total + _deposit.shard * _deposit.nShards;
     }
 }
-
-// contract SectorFactory is ISectorFactory, AccessControl {
-//     bytes32 public constant PRODUCER_ROLE = keccak256("PRODUCER_ROLE"); // should only grant to the TurboFil
-    
-//     address public turboFil;
-    
-//     constructor(address turboFil_) {
-//         _setupRole(DEFAULT_ADMIN_ROLE, turboFil_);
-//         turboFil = turboFil_;
-        
-//         _setupRole(PRODUCER_ROLE, turboFil_);
-//     }
-    
-//     /// @dev Called by RNode. When registering RNode, TurboFil should grant RNode PRODUCER_ROLE;
-//     function produce(address submitter_, address rnode_, string memory afid_, string memory merkleRoot_, ITFCShare sectorVerificationShare_, uint256 depositReleaseTime_) payable external override returns (ISector) {
-//         require(hasRole(PRODUCER_ROLE, msg.sender), "SectorFactory: Caller does not have privilege to produce");
-//         Sector sector = new Sector{value: msg.value}(submitter_, rnode_, afid_, merkleRoot_, sectorVerificationShare_, depositReleaseTime_);
-//         bytes32 VERIFY_ROLE = keccak256("VERIFY_ROLE"); // same VERIFY_ROLE as in Sector
-//         sector.grantRole(VERIFY_ROLE, turboFil);
-//         sector.grantRole(DEFAULT_ADMIN_ROLE, turboFil);
-//         return sector;
-//     }
-// }

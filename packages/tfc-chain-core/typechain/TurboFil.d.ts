@@ -23,23 +23,28 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface TurboFilInterface extends ethers.utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "REGISTER_ROLE()": FunctionFragment;
-    "REWARD_ROLE()": FunctionFragment;
+    "MAINTAIN_ROLE()": FunctionFragment;
+    "SECTOR_ROLE()": FunctionFragment;
     "SEED_ROLE()": FunctionFragment;
-    "SUBMIT_ROLE()": FunctionFragment;
     "VERIFY_ROLE()": FunctionFragment;
-    "distributeTFC()": FunctionFragment;
+    "depositRequirement()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "initialize(address,address,address,address)": FunctionFragment;
-    "registerRNode(address,string)": FunctionFragment;
+    "lockPeriod()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "submitSector(address,address,string,string)": FunctionFragment;
-    "submitSeed(address,string)": FunctionFragment;
+    "rewardUnit()": FunctionFragment;
+    "sectorAtIndex(uint256)": FunctionFragment;
+    "sectorVerification_callback(bytes28,bytes28,bool)": FunctionFragment;
+    "sectorWithAfid(bytes28)": FunctionFragment;
+    "seedUsed(bytes28)": FunctionFragment;
+    "setLockPeriod(uint256)": FunctionFragment;
+    "setReward(uint256)": FunctionFragment;
+    "submitSector(address,bytes28)": FunctionFragment;
+    "submitSeed(bytes28)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "verifySector(address,address,bool)": FunctionFragment;
+    "withdraw()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -47,24 +52,20 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "REGISTER_ROLE",
+    functionFragment: "MAINTAIN_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "REWARD_ROLE",
+    functionFragment: "SECTOR_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "SEED_ROLE", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "SUBMIT_ROLE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "VERIFY_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "distributeTFC",
+    functionFragment: "depositRequirement",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -80,12 +81,8 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, string, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "registerRNode",
-    values: [string, string]
+    functionFragment: "lockPeriod",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
@@ -96,45 +93,63 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "rewardUnit",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sectorAtIndex",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sectorVerification_callback",
+    values: [BytesLike, BytesLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sectorWithAfid",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "seedUsed", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "setLockPeriod",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setReward",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "submitSector",
-    values: [string, string, string, string]
+    values: [string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "submitSeed",
-    values: [string, string]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "verifySector",
-    values: [string, string, boolean]
-  ): string;
+  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "DEFAULT_ADMIN_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "REGISTER_ROLE",
+    functionFragment: "MAINTAIN_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "REWARD_ROLE",
+    functionFragment: "SECTOR_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "SEED_ROLE", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "SUBMIT_ROLE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "VERIFY_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "distributeTFC",
+    functionFragment: "depositRequirement",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -143,16 +158,31 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "registerRNode",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "lockPeriod", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "rewardUnit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sectorAtIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sectorVerification_callback",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sectorWithAfid",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "seedUsed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setLockPeriod",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setReward", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "submitSector",
     data: BytesLike
@@ -162,28 +192,21 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifySector",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
-    "RegisterRNode(address,address,string)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
-    "SubmitSector(address,address,string)": EventFragment;
-    "SubmitSeed(address,address,string)": EventFragment;
-    "VerifySector(address,address,bool)": EventFragment;
+    "SectorSubmission(address,bytes28,address)": EventFragment;
+    "SeedSectorVerify(bytes28,bytes28)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "RegisterRNode"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SubmitSector"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SubmitSeed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VerifySector"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SectorSubmission"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SeedSectorVerify"): EventFragment;
 }
 
 export class TurboFil extends Contract {
@@ -234,33 +257,25 @@ export class TurboFil extends Contract {
 
     "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    REGISTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    MAINTAIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+    "MAINTAIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    REWARD_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    SECTOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+    "SECTOR_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
     SEED_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "SEED_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    SUBMIT_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "SUBMIT_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
     VERIFY_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    distributeTFC(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    depositRequirement(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "distributeTFC()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "depositRequirement()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
@@ -293,33 +308,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    initialize(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    lockPeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "initialize(address,address,address,address)"(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    registerRNode(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "registerRNode(address,string)"(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "lockPeriod()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     renounceRole(
       role: BytesLike,
@@ -345,31 +336,90 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    rewardUnit(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "rewardUnit()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    sectorAtIndex(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "sectorAtIndex(uint256)"(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    sectorVerification_callback(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "sectorVerification_callback(bytes28,bytes28,bool)"(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    sectorWithAfid(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "sectorWithAfid(bytes28)"(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
+
+    "seedUsed(bytes28)"(
+      seed_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    setLockPeriod(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setLockPeriod(uint256)"(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     submitSector(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "submitSector(address,address,string,string)"(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+    "submitSector(address,bytes28)"(
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     submitSeed(
-      submitter_: string,
-      afid_: string,
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "submitSeed(address,string)"(
-      submitter_: string,
-      afid_: string,
+    "submitSeed(bytes28)"(
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -383,17 +433,11 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    verifySector(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "verifySector(address,address,bool)"(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    "withdraw()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -402,33 +446,25 @@ export class TurboFil extends Contract {
 
   "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  REGISTER_ROLE(overrides?: CallOverrides): Promise<string>;
+  MAINTAIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "MAINTAIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  REWARD_ROLE(overrides?: CallOverrides): Promise<string>;
+  SECTOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "REWARD_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "SECTOR_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   SEED_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "SEED_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  SUBMIT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "SUBMIT_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
   VERIFY_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  distributeTFC(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  depositRequirement(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "distributeTFC()"(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "depositRequirement()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -461,33 +497,9 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  initialize(
-    sectorSubmissionShare_: string,
-    sectorVerificationShare_: string,
-    seedSubmissionShare_: string,
-    seedEvaluationShare_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "initialize(address,address,address,address)"(
-    sectorSubmissionShare_: string,
-    sectorVerificationShare_: string,
-    seedSubmissionShare_: string,
-    seedEvaluationShare_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  registerRNode(
-    owner_: string,
-    afid_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "registerRNode(address,string)"(
-    owner_: string,
-    afid_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   renounceRole(
     role: BytesLike,
@@ -513,31 +525,87 @@ export class TurboFil extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  sectorAtIndex(
+    index_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "sectorAtIndex(uint256)"(
+    index_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  sectorVerification_callback(
+    seed_: BytesLike,
+    sector_afid_: BytesLike,
+    result_: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "sectorVerification_callback(bytes28,bytes28,bool)"(
+    seed_: BytesLike,
+    sector_afid_: BytesLike,
+    result_: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  sectorWithAfid(afid_: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  "sectorWithAfid(bytes28)"(
+    afid_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+  "seedUsed(bytes28)"(
+    seed_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  setLockPeriod(
+    lockPeriod_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setLockPeriod(uint256)"(
+    lockPeriod_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setReward(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setReward(uint256)"(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   submitSector(
-    rnode_: string,
-    submitter_: string,
-    afid_: string,
-    merkleRoot_: string,
+    owner_: string,
+    afid_: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "submitSector(address,address,string,string)"(
-    rnode_: string,
-    submitter_: string,
-    afid_: string,
-    merkleRoot_: string,
+  "submitSector(address,bytes28)"(
+    owner_: string,
+    afid_: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   submitSeed(
-    submitter_: string,
-    afid_: string,
+    seed_: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "submitSeed(address,string)"(
-    submitter_: string,
-    afid_: string,
+  "submitSeed(bytes28)"(
+    seed_: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -551,17 +619,11 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  verifySector(
-    sector_: string,
-    seed_: string,
-    success_: boolean,
+  withdraw(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "verifySector(address,address,bool)"(
-    sector_: string,
-    seed_: string,
-    success_: boolean,
+  "withdraw()"(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -570,29 +632,25 @@ export class TurboFil extends Contract {
 
     "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    REGISTER_ROLE(overrides?: CallOverrides): Promise<string>;
+    MAINTAIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "MAINTAIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    REWARD_ROLE(overrides?: CallOverrides): Promise<string>;
+    SECTOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "SECTOR_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     SEED_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "SEED_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    SUBMIT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "SUBMIT_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
     VERIFY_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    distributeTFC(overrides?: CallOverrides): Promise<void>;
+    depositRequirement(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "distributeTFC()"(overrides?: CallOverrides): Promise<void>;
+    "depositRequirement()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -625,33 +683,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initialize(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "initialize(address,address,address,address)"(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    registerRNode(
-      owner_: string,
-      afid_: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "registerRNode(address,string)"(
-      owner_: string,
-      afid_: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -677,33 +711,86 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sectorAtIndex(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "sectorAtIndex(uint256)"(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    sectorVerification_callback(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "sectorVerification_callback(bytes28,bytes28,bool)"(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    sectorWithAfid(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "sectorWithAfid(bytes28)"(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    "seedUsed(bytes28)"(
+      seed_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setLockPeriod(
+      lockPeriod_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setLockPeriod(uint256)"(
+      lockPeriod_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setReward(reward_: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    "setReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     submitSector(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+      owner_: string,
+      afid_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
-    "submitSector(address,address,string,string)"(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+    "submitSector(address,bytes28)"(
+      owner_: string,
+      afid_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
-    submitSeed(
-      submitter_: string,
-      afid_: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    submitSeed(seed_: BytesLike, overrides?: CallOverrides): Promise<void>;
 
-    "submitSeed(address,string)"(
-      submitter_: string,
-      afid_: string,
+    "submitSeed(bytes28)"(
+      seed_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -715,31 +802,12 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    verifySector(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    withdraw(overrides?: CallOverrides): Promise<void>;
 
-    "verifySector(address,address,bool)"(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    "withdraw()"(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    RegisterRNode(
-      owner: null,
-      rnode: null,
-      afid: null
-    ): TypedEventFilter<
-      [string, string, string],
-      { owner: string; rnode: string; afid: string }
-    >;
-
     RoleAdminChanged(
       role: BytesLike | null,
       previousAdminRole: BytesLike | null,
@@ -767,31 +835,21 @@ export class TurboFil extends Contract {
       { role: string; account: string; sender: string }
     >;
 
-    SubmitSector(
-      submitter: null,
-      sector: null,
-      afid: null
+    SectorSubmission(
+      owner: null,
+      afid: null,
+      sector: null
     ): TypedEventFilter<
       [string, string, string],
-      { submitter: string; sector: string; afid: string }
+      { owner: string; afid: string; sector: string }
     >;
 
-    SubmitSeed(
-      submitter: null,
+    SeedSectorVerify(
       seed: null,
-      afid: null
+      sector_afid: null
     ): TypedEventFilter<
-      [string, string, string],
-      { submitter: string; seed: string; afid: string }
-    >;
-
-    VerifySector(
-      sector: null,
-      seed: null,
-      success: null
-    ): TypedEventFilter<
-      [string, string, boolean],
-      { sector: string; seed: string; success: boolean }
+      [string, string],
+      { seed: string; sector_afid: string }
     >;
   };
 
@@ -800,33 +858,25 @@ export class TurboFil extends Contract {
 
     "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    REGISTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    MAINTAIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "MAINTAIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    REWARD_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    SECTOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "SECTOR_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     SEED_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "SEED_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    SUBMIT_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "SUBMIT_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     VERIFY_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    distributeTFC(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    depositRequirement(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "distributeTFC()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "depositRequirement()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(
       role: BytesLike,
@@ -862,33 +912,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    initialize(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "initialize(address,address,address,address)"(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    registerRNode(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "registerRNode(address,string)"(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceRole(
       role: BytesLike,
@@ -914,31 +940,90 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    sectorAtIndex(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "sectorAtIndex(uint256)"(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    sectorVerification_callback(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "sectorVerification_callback(bytes28,bytes28,bool)"(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    sectorWithAfid(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "sectorWithAfid(bytes28)"(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "seedUsed(bytes28)"(
+      seed_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setLockPeriod(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setLockPeriod(uint256)"(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     submitSector(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "submitSector(address,address,string,string)"(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+    "submitSector(address,bytes28)"(
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     submitSeed(
-      submitter_: string,
-      afid_: string,
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "submitSeed(address,string)"(
-      submitter_: string,
-      afid_: string,
+    "submitSeed(bytes28)"(
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -952,17 +1037,11 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    verifySector(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "verifySector(address,address,bool)"(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    "withdraw()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -976,32 +1055,28 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    REGISTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    MAINTAIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "REGISTER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "MAINTAIN_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    REWARD_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    SECTOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "REWARD_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "SECTOR_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     SEED_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "SEED_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    SUBMIT_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "SUBMIT_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     VERIFY_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "VERIFY_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    distributeTFC(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    depositRequirement(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "distributeTFC()"(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    "depositRequirement()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
@@ -1038,33 +1113,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    initialize(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    lockPeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "initialize(address,address,address,address)"(
-      sectorSubmissionShare_: string,
-      sectorVerificationShare_: string,
-      seedSubmissionShare_: string,
-      seedEvaluationShare_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    registerRNode(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "registerRNode(address,string)"(
-      owner_: string,
-      afid_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    "lockPeriod()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: BytesLike,
@@ -1090,31 +1141,93 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    rewardUnit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "rewardUnit()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sectorAtIndex(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "sectorAtIndex(uint256)"(
+      index_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    sectorVerification_callback(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "sectorVerification_callback(bytes28,bytes28,bool)"(
+      seed_: BytesLike,
+      sector_afid_: BytesLike,
+      result_: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sectorWithAfid(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "sectorWithAfid(bytes28)"(
+      afid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    seedUsed(
+      seed_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "seedUsed(bytes28)"(
+      seed_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setLockPeriod(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setLockPeriod(uint256)"(
+      lockPeriod_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     submitSector(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "submitSector(address,address,string,string)"(
-      rnode_: string,
-      submitter_: string,
-      afid_: string,
-      merkleRoot_: string,
+    "submitSector(address,bytes28)"(
+      owner_: string,
+      afid_: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     submitSeed(
-      submitter_: string,
-      afid_: string,
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "submitSeed(address,string)"(
-      submitter_: string,
-      afid_: string,
+    "submitSeed(bytes28)"(
+      seed_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1128,17 +1241,11 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    verifySector(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "verifySector(address,address,bool)"(
-      sector_: string,
-      seed_: string,
-      success_: boolean,
+    "withdraw()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

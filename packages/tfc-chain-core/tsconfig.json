@@ -1,9 +1,19 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
+    "outDir": "lib",
+    "declaration": true
   },
   "include": [
+    "index.ts",
     "src"
+  ],
+  "exclude": [
+    "artifacts",
+    "lib",
+    "test",
+    "node_modules",
+    "hardhat.config.ts",
+    "jest.config.ts"
   ]
 }

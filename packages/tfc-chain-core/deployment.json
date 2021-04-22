@@ -1,16 +1,5 @@
 {
   "development": {
-    "TurboFil": "0xa070801251679385035109B8ea5bBC93fb662E6b",
-    "SectorSubmissionShare": "0x27F008Efc505FcfcE02BE181D45ddf31227BA6a1",
-    "SectorVerificationShare": "0xC4Aeb24897997C98faAfb4dcA2713c9cfee63434",
-    "SeedSubmissionShare": "0xF85B3D27BdE2E7829c43a63C60Dbe4E6C4D10891",
-    "SeedEvaluationShare": "0x4286c373f65148d990e10e3e1ebEcBd888A7ebc4"
-  },
-  "mock": {
-    "TurboFil": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
-    "SectorSubmissionShare": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
-    "SectorVerificationShare": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
-    "SeedSubmissionShare": "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B",
-    "SeedEvaluationShare": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550"
+    "TurboFil": "0x07A8A5dA1A25Af8f43d3d016A36321B52B4fa215"
   }
 }
