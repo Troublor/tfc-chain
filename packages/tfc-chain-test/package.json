@@ -6,6 +6,19 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:performance": "ts-node test/performance.test.ts",
+    "daemon:submit-sector": "ts-node src/submit-sector.ts",
+    "daemon:submit-seed": "ts-node src/submit-seed.ts",
+    "daemon:verifier": "ts-node src/verifier.ts",
+    "monitor:verification-task": "ts-node src/monitor-seed.ts"
+  },
+  "dependencies": {
+    "@troubkit/log": "^0.3.0",
+    "ethers": "^5.1.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.0"
   }
 }
