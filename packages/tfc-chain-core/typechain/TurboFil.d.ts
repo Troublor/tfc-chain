@@ -292,7 +292,7 @@ interface TurboFilInterface extends ethers.utils.Interface {
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
     "SectorSubmission(address,bytes28,address)": EventFragment;
-    "VerificationTask(address)": EventFragment;
+    "VerificationTask(bytes28,bytes28,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
@@ -1130,8 +1130,13 @@ export class TurboFil extends Contract {
     >;
 
     VerificationTask(
+      sector_afid: BytesLike | null,
+      seed: null,
       verification: null
-    ): TypedEventFilter<[string], { verification: string }>;
+    ): TypedEventFilter<
+      [string, string, string],
+      { sector_afid: string; seed: string; verification: string }
+    >;
   };
 
   estimateGas: {

@@ -3,7 +3,7 @@ import {ethers} from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address';
 import {genAfid} from './helpers';
-import {networks} from '../index';
+import {skeletons} from '../index';
 
 interface Event {
     address: string,
@@ -85,7 +85,7 @@ describe('TurboFil', () => {
                 expect(event.event).toEqual('VerificationTask');
                 expect(event.args['verification']).toBeTruthy();
 
-                verification = networks.development.Verification.factory.attach(event.args['verification'] as string);
+                verification = skeletons.Verification.factory.attach(event.args['verification'] as string);
             });
 
             test('should generate correct verification contract', async () => {

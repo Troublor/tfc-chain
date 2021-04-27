@@ -30,7 +30,7 @@ contract TurboFil is AccessControl, ITurboFil {
     mapping(bytes28=>bool) usedSeeds;
 
     event SectorSubmission(address owner, bytes28 afid, address sector);
-    event VerificationTask(address verification);
+    event VerificationTask(bytes28 indexed sector_afid, bytes28 seed, address verification);
 
     constructor(uint256 sectorReward_, uint256 seedReward_, uint256 verifyReward_, uint256 lockPeriod_,
     uint256 submitProofTimeout_, uint256 verifyProofTimeout_, uint256 verifyThreshold_) payable {
@@ -77,7 +77,7 @@ contract TurboFil is AccessControl, ITurboFil {
         sector.setVerification(address(verification));
         
         // notify off-chain monitor that a verification should be performed.
-        emit VerificationTask(address(verification));
+        emit VerificationTask(sector.afid(), seed_, address(verification));
     }
     
     /* Maintenance functions */

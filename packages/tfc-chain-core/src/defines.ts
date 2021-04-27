@@ -10,11 +10,10 @@ import {
     TurboFil__factory, Verification__factory,
 } from '../typechain';
 
-export interface Contracts {
+export interface Skeletons {
     TurboFil: {
         artifact: typeof turboFilArtifact,
         factory: TurboFil__factory,
-        contract: TurboFil,
     },
     Sector: {
         artifact: typeof sectorArtifact,
@@ -26,34 +25,41 @@ export interface Contracts {
     }
 }
 
-type networks = keyof typeof deployment;
-
-type Networks = {
-    [n in networks]: Contracts
+export interface Deployment {
+    TurboFil: TurboFil
 }
 
-function buildNetworks(): Networks {
+type networks = keyof typeof deployment;
+
+type NetworkDeployments = {
+    [n in networks]: Deployment
+}
+
+export const skeletons: Skeletons = {
+    TurboFil: {
+        artifact: turboFilArtifact,
+        factory: new ethers.ContractFactory(turboFilArtifact.abi, turboFilArtifact.bytecode) as TurboFil__factory,
+    },
+    Sector: {
+        artifact: sectorArtifact,
+        factory: new ethers.ContractFactory(sectorArtifact.abi, sectorArtifact.bytecode) as Sector__factory,
+    },
+    Verification: {
+        artifact: verificationArtifact,
+        factory: new ethers.ContractFactory(verificationArtifact.abi, verificationArtifact.bytecode) as Verification__factory,
+    },
+};
+
+function buildNetworks(): NetworkDeployments {
     const networks = {};
     for (const network of Object.keys(deployment)) {
-        (networks as Networks)[network as networks] = {
-            TurboFil: {
-                artifact: turboFilArtifact,
-                factory: new ethers.ContractFactory(turboFilArtifact.abi, turboFilArtifact.bytecode) as TurboFil__factory,
-                contract: new ethers.Contract(deployment[network as networks].TurboFil, turboFilArtifact.abi) as TurboFil,
-            },
-            Sector: {
-                artifact: sectorArtifact,
-                factory: new ethers.ContractFactory(sectorArtifact.abi, sectorArtifact.bytecode) as Sector__factory,
-            },
-            Verification: {
-                artifact: verificationArtifact,
-                factory: new ethers.ContractFactory(verificationArtifact.abi, verificationArtifact.bytecode) as Verification__factory,
-            },
+        (networks as NetworkDeployments)[network as networks] = {
+            TurboFil: new ethers.Contract(deployment[network as networks].TurboFil, turboFilArtifact.abi) as TurboFil,
         };
     }
 
-    return networks as Networks;
+    return networks as NetworkDeployments;
 }
 
-export const networks: Networks = buildNetworks();
+export const deployments: NetworkDeployments = buildNetworks();
 

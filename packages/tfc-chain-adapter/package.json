@@ -1,0 +1,14 @@
+{
+  "name": "@tfc-chain/adapter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@troubkit/tools": "^0.4.0",
+    "ethers": "^5.1.4",
+    "@tfc-chain/core": "^2.0.0"
+  }
+}

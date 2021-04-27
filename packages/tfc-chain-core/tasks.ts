@@ -1,7 +1,7 @@
 import {TurboFil, TurboFil__factory} from './typechain';
 import {task} from 'hardhat/config';
 import '@nomiclabs/hardhat-ethers';
-import {networks} from './lib';
+import {deployments, skeletons} from './lib';
 import {ethers} from 'ethers';
 
 task('deploy', 'Deploy TurboFil contracts')
@@ -38,7 +38,7 @@ task('grant-verify-role')
     .setAction(async (args, hre) => {
         const account = args.account;
         const [signer] = await hre.ethers.getSigners();
-        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const turboFil: TurboFil = deployments.development.TurboFil.connect(signer);
         const tx = await turboFil.grantRole(await turboFil.VERIFY_ROLE(), account);
         await tx.wait(1);
         console.log('VERIFY_ROLE granted to', account);
@@ -48,7 +48,7 @@ task('set-verify-threshold')
     .addParam('threshold')
     .setAction(async (args, hre) => {
         const [signer] = await hre.ethers.getSigners();
-        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const turboFil: TurboFil = deployments.development.TurboFil.connect(signer);
         const tx = await turboFil.setVerifyThreshold(args.threshold);
         await tx.wait(1);
         console.log('Verify threshold set to', args.threshold);
@@ -59,7 +59,7 @@ task('submit-sector', 'Submit sector')
     .addParam('sectorAfid')
     .setAction(async (args, hre) => {
         const [signer] = await hre.ethers.getSigners();
-        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const turboFil: TurboFil = deployments.development.TurboFil.connect(signer);
         const deposit = await turboFil.depositRequirement();
         const tx = await turboFil.submitSector(args.owner, args.sectorAfid, {value: deposit});
         console.log('Submit sector transaction pending...');
@@ -72,7 +72,7 @@ task('submit-seed', 'Submit seed')
     .addParam('seed')
     .setAction(async (args, hre) => {
         const [signer] = await hre.ethers.getSigners();
-        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const turboFil: TurboFil = deployments.development.TurboFil.connect(signer);
         try {
             const tx = await turboFil.submitSeed(args.seed);
             console.log('Submit seed transaction pending...');
@@ -89,13 +89,13 @@ task('submit-verify-result', 'Submit sector-seed verification result')
     .addParam('result')
     .setAction(async (args, hre) => {
         const [signer] = await hre.ethers.getSigners();
-        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const turboFil: TurboFil = deployments.development.TurboFil.connect(signer);
         try {
             const tx = await turboFil.sectorVerification_callback(args.seed, args.sectorAfid, args.result);
             console.log('Submit verification result transaction pending...');
             const receipt = await tx.wait(1);
             const log = receipt.logs[0];
-            const event = networks.development.Sector.factory.interface.parseLog(log);
+            const event = skeletons.Sector.factory.interface.parseLog(log);
             console.log('Sector verified:');
             console.log('Sector afid:', args.sectorAfid);
             console.log('Seed:', event.args.seed);
