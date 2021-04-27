@@ -1,5 +1,6 @@
 import {ethers} from 'ethers';
 import {Middleware} from './internal/middleware';
+import {skeletons} from '@tfc-chain/core';
 
 export class RNode extends Middleware {
     async submitSector(afid: Buffer): Promise<ethers.ContractReceipt> {
@@ -7,6 +8,11 @@ export class RNode extends Middleware {
             throw new Error(`account ${this.wallet.address} does not have privilege to submit sector, please let maintainer grant the proper role`);
         }
         const tx = await this.turboFil.submitSector(this.wallet.address, afid);
+        return await tx.wait(this.confirmationRequirement);
+    }
+
+    async submitProof(verification: string, proof: string): Promise<ethers.ContractReceipt> {
+        const tx = await skeletons.Verification.factory.attach(verification).connect(this.wallet).submitProof(proof);
         return await tx.wait(this.confirmationRequirement);
     }
 
