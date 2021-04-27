@@ -1,0 +1,55 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ISector",
+  "sourceName": "contracts/interfaces.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "afid",
+      "outputs": [
+        {
+          "internalType": "bytes28",
+          "name": "",
+          "type": "bytes28"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address payable",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes28",
+          "name": "seed_",
+          "type": "bytes28"
+        },
+        {
+          "internalType": "bool",
+          "name": "result_",
+          "type": "bool"
+        }
+      ],
+      "name": "verificationResult",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

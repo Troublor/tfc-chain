@@ -5,13 +5,19 @@ import {networks} from './lib';
 import {ethers} from 'ethers';
 
 task('deploy', 'Deploy TurboFil contracts')
-    .addParam('rewardUnit')
+    .addParam('sectorReward')
+    .addParam('seedReward')
+    .addParam('verifyReward')
     .addParam('lockPeriod')
+    .addParam('submitProofTimeout')
+    .addParam('verifyProofTimeout')
+    .addParam('verifyThreshold')
     .setAction(async (args, hre) => {
         const [deployer] = await hre.ethers.getSigners();
         let TurboFil = await hre.ethers.getContractFactory('TurboFil') as unknown as TurboFil__factory;
         TurboFil = TurboFil.connect(deployer);
-        const turboFil = await TurboFil.deploy(args.rewardUnit, args.lockPeriod);
+        const turboFil = await TurboFil.deploy(args.sectorReward, args.seedReward, args.verifyReward, args.lockPeriod,
+            args.submitProofTimeout, args.verifyProofTimeout, args.verifyThreshold);
         await turboFil.deployed();
         console.log(`Deployed TurboFil at ${turboFil.address}`);
 
@@ -20,10 +26,32 @@ task('deploy', 'Deploy TurboFil contracts')
         tx = await turboFil.grantRole(await turboFil.SECTOR_ROLE(), deployer.address);
         tx = await turboFil.grantRole(await turboFil.SEED_ROLE(), deployer.address);
         tx = await turboFil.grantRole(await turboFil.VERIFY_ROLE(), deployer.address);
+        tx = await turboFil.grantRole(await turboFil.MAINTAIN_ROLE(), deployer.address);
         tx = await deployer.sendTransaction({to: turboFil.address, value: ethers.utils.parseEther('1')});
         await tx.wait(1);
 
         console.log('Deploy finished, remember to update deployment.json');
+    });
+
+task('grant-verify-role')
+    .addParam('account')
+    .setAction(async (args, hre) => {
+        const account = args.account;
+        const [signer] = await hre.ethers.getSigners();
+        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const tx = await turboFil.grantRole(await turboFil.VERIFY_ROLE(), account);
+        await tx.wait(1);
+        console.log('VERIFY_ROLE granted to', account);
+    });
+
+task('set-verify-threshold')
+    .addParam('threshold')
+    .setAction(async (args, hre) => {
+        const [signer] = await hre.ethers.getSigners();
+        const turboFil: TurboFil = networks.development.TurboFil.contract.connect(signer);
+        const tx = await turboFil.setVerifyThreshold(args.threshold);
+        await tx.wait(1);
+        console.log('Verify threshold set to', args.threshold);
     });
 
 task('submit-sector', 'Submit sector')
@@ -50,7 +78,7 @@ task('submit-seed', 'Submit seed')
             console.log('Submit seed transaction pending...');
             await tx.wait(1);
             console.log('Seed submitted, seed:', args.seed);
-        }catch (e){
+        } catch (e) {
             console.log(e.error.toString());
         }
     });
@@ -73,7 +101,7 @@ task('submit-verify-result', 'Submit sector-seed verification result')
             console.log('Seed:', event.args.seed);
             console.log('Reward:', event.args.reward.toNumber());
             console.log('Punish:', event.args.punish.toNumber());
-        }catch (e){
+        } catch (e) {
             console.log(e.error.toString());
         }
     });

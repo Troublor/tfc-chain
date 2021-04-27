@@ -11,7 +11,6 @@ import {
   PopulatedTransaction,
   Contract,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   CallOverrides,
 } from "ethers";
@@ -20,59 +19,31 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface SectorInterface extends ethers.utils.Interface {
+interface ISectorInterface extends ethers.utils.Interface {
   functions: {
     "afid()": FunctionFragment;
-    "lockedTFC()": FunctionFragment;
     "owner()": FunctionFragment;
-    "setVerification(address)": FunctionFragment;
-    "turboFil()": FunctionFragment;
-    "verification()": FunctionFragment;
     "verificationResult(bytes28,bool)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "afid", values?: undefined): string;
-  encodeFunctionData(functionFragment: "lockedTFC", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setVerification",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "turboFil", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "verification",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "verificationResult",
     values: [BytesLike, boolean]
   ): string;
 
   decodeFunctionResult(functionFragment: "afid", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "lockedTFC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setVerification",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "turboFil", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "verification",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "verificationResult",
     data: BytesLike
   ): Result;
 
-  events: {
-    "Verification(bytes28,bool,uint256,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Verification"): EventFragment;
+  events: {};
 }
 
-export class Sector extends Contract {
+export class ISector extends Contract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -113,38 +84,16 @@ export class Sector extends Contract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: SectorInterface;
+  interface: ISectorInterface;
 
   functions: {
     afid(overrides?: CallOverrides): Promise<[string]>;
 
     "afid()"(overrides?: CallOverrides): Promise<[string]>;
 
-    lockedTFC(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "lockedTFC()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
-
-    setVerification(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setVerification(address)"(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    turboFil(overrides?: CallOverrides): Promise<[string]>;
-
-    "turboFil()"(overrides?: CallOverrides): Promise<[string]>;
-
-    verification(overrides?: CallOverrides): Promise<[string]>;
-
-    "verification()"(overrides?: CallOverrides): Promise<[string]>;
 
     verificationResult(
       seed_: BytesLike,
@@ -163,31 +112,9 @@ export class Sector extends Contract {
 
   "afid()"(overrides?: CallOverrides): Promise<string>;
 
-  lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
-
-  setVerification(
-    verification_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setVerification(address)"(
-    verification_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  turboFil(overrides?: CallOverrides): Promise<string>;
-
-  "turboFil()"(overrides?: CallOverrides): Promise<string>;
-
-  verification(overrides?: CallOverrides): Promise<string>;
-
-  "verification()"(overrides?: CallOverrides): Promise<string>;
 
   verificationResult(
     seed_: BytesLike,
@@ -206,31 +133,9 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<string>;
 
-    lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
-
-    setVerification(
-      verification_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setVerification(address)"(
-      verification_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    turboFil(overrides?: CallOverrides): Promise<string>;
-
-    "turboFil()"(overrides?: CallOverrides): Promise<string>;
-
-    verification(overrides?: CallOverrides): Promise<string>;
-
-    "verification()"(overrides?: CallOverrides): Promise<string>;
 
     verificationResult(
       seed_: BytesLike,
@@ -245,48 +150,16 @@ export class Sector extends Contract {
     ): Promise<void>;
   };
 
-  filters: {
-    Verification(
-      seed: null,
-      result: null,
-      reward: null,
-      punish: null
-    ): TypedEventFilter<
-      [string, boolean, BigNumber, BigNumber],
-      { seed: string; result: boolean; reward: BigNumber; punish: BigNumber }
-    >;
-  };
+  filters: {};
 
   estimateGas: {
     afid(overrides?: CallOverrides): Promise<BigNumber>;
 
     "afid()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setVerification(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setVerification(address)"(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    turboFil(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "turboFil()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    verification(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "verification()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     verificationResult(
       seed_: BytesLike,
@@ -306,31 +179,9 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    lockedTFC(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "lockedTFC()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setVerification(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setVerification(address)"(
-      verification_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    turboFil(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "turboFil()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    verification(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "verification()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     verificationResult(
       seed_: BytesLike,

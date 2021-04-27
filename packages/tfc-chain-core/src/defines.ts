@@ -3,10 +3,11 @@ import * as ethers from 'ethers';
 import deployment = require('../deployment.json');
 import turboFilArtifact = require('../artifacts/contracts/TurboFil.sol/TurboFil.json');
 import sectorArtifact = require('../artifacts/contracts/Sector.sol/Sector.json');
+import verificationArtifact = require('../artifacts/contracts/Verification.sol/Verification.json');
 import {
     Sector__factory,
     TurboFil,
-    TurboFil__factory,
+    TurboFil__factory, Verification__factory,
 } from '../typechain';
 
 export interface Contracts {
@@ -19,6 +20,10 @@ export interface Contracts {
         artifact: typeof sectorArtifact,
         factory: Sector__factory,
     },
+    Verification: {
+        artifact: typeof verificationArtifact,
+        factory: Verification__factory,
+    }
 }
 
 type networks = keyof typeof deployment;
@@ -39,6 +44,10 @@ function buildNetworks(): Networks {
             Sector: {
                 artifact: sectorArtifact,
                 factory: new ethers.ContractFactory(sectorArtifact.abi, sectorArtifact.bytecode) as Sector__factory,
+            },
+            Verification: {
+                artifact: verificationArtifact,
+                factory: new ethers.ContractFactory(verificationArtifact.abi, verificationArtifact.bytecode) as Verification__factory,
             },
         };
     }

@@ -5,12 +5,18 @@ export type { AccessControl } from "./AccessControl";
 export type { IAccessControl } from "./IAccessControl";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
+export type { ISector } from "./ISector";
+export type { ITurboFil } from "./ITurboFil";
 export type { Sector } from "./Sector";
 export type { TurboFil } from "./TurboFil";
+export type { Verification } from "./Verification";
 
 export { AccessControl__factory } from "./factories/AccessControl__factory";
 export { IAccessControl__factory } from "./factories/IAccessControl__factory";
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
+export { ISector__factory } from "./factories/ISector__factory";
+export { ITurboFil__factory } from "./factories/ITurboFil__factory";
 export { Sector__factory } from "./factories/Sector__factory";
 export { TurboFil__factory } from "./factories/TurboFil__factory";
+export { Verification__factory } from "./factories/Verification__factory";

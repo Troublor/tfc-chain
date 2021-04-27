@@ -2,7 +2,9 @@ pragma solidity >=0.8.0 <0.9.0;
 
 // SPDX-License-Identifier: MIT
 
-contract Sector {
+import "./interfaces.sol";
+
+contract Sector is ISector {
     /// The reward queue. 
     struct Queue {
         mapping(uint256 => uint256) q;
@@ -20,38 +22,53 @@ contract Sector {
     }
     Deposit _deposit;
 
-    address payable public owner;
-    bytes28 public afid;
-    address payable public turboFil;
+    address payable public override owner;
+    bytes28 public override afid;
+    ITurboFil public turboFil;
+    
+    address public verification;
 
-    event Verification(bytes28 seed, bool success, uint256 reward, uint256 punish);
+    event Verification(bytes28 seed, bool result, uint256 reward, uint256 punish);
     
     modifier onlyTurboFil {
-        require(msg.sender == turboFil, "Sector: can only be called by TurboFil");
+        require(msg.sender == address(turboFil), "Sector: can only be called by TurboFil");
+        _;
+    }
+    
+    modifier onlyOwner {
+        require(msg.sender == owner, "Sector: can only be called by owner");
+        _;
+    }
+    
+    modifier onlyVerification {
+        require(msg.sender == verification, "Sector: can only be called by correct verification");
         _;
     }
 
     constructor(address payable owner_, bytes28 afid_, uint256 lockPeriod_) payable {
-        turboFil = payable(msg.sender);
+        turboFil = ITurboFil(msg.sender);
         owner = owner_;
         afid = afid_;
         uint256 shard = msg.value / lockPeriod_;
         _deposit.shard = shard;
         _deposit.nShards = lockPeriod_;
     }
-
-    function verify(bytes28 seed_, bool success_) onlyTurboFil payable public {
-        require(msg.value > 0, "Sector: verify reward cannot be zero");
+    
+    function setVerification(address verification_) onlyTurboFil external {
+        verification = verification_;
+    }
+    
+    function verificationResult(bytes28 seed_, bool result_) onlyVerification payable external override {
         uint256 reward;
         uint256 punish;
-        if (success_){
+        if (result_){
             reward = msg.value;
             _reward(reward);
         } else {
             punish = _punish();
-            turboFil.transfer(msg.value);
+            payable(address(turboFil)).transfer(msg.value);
         }
-        emit Verification(seed_, success_, reward, punish);
+        emit Verification(seed_, result_, reward, punish);
     }
 
     function _reward(uint256 amount_) internal returns (uint256 unlocked) {
@@ -80,7 +97,7 @@ contract Sector {
         amount += _deposit.shard * _deposit.nShards;
         amount += _rewards.total;
         if(amount > 0){
-            turboFil.transfer(amount);
+            payable(address(turboFil)).transfer(amount);
         }
     }
     

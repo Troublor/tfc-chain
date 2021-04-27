@@ -31,19 +31,29 @@ interface TurboFilInterface extends ethers.utils.Interface {
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
+    "hasVerifyRole(address)": FunctionFragment;
     "lockPeriod()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "rewardUnit()": FunctionFragment;
     "sectorAtIndex(uint256)": FunctionFragment;
-    "sectorVerification_callback(bytes28,bytes28,bool)": FunctionFragment;
+    "sectorReward()": FunctionFragment;
     "sectorWithAfid(bytes28)": FunctionFragment;
+    "seedReward()": FunctionFragment;
     "seedUsed(bytes28)": FunctionFragment;
     "setLockPeriod(uint256)": FunctionFragment;
-    "setReward(uint256)": FunctionFragment;
+    "setSectorReward(uint256)": FunctionFragment;
+    "setSeedReward(uint256)": FunctionFragment;
+    "setSubmitProofTimeout(uint256)": FunctionFragment;
+    "setVerifyProofTimeout(uint256)": FunctionFragment;
+    "setVerifyReward(uint256)": FunctionFragment;
+    "setVerifyThreshold(uint256)": FunctionFragment;
+    "submitProofTimeout()": FunctionFragment;
     "submitSector(address,bytes28)": FunctionFragment;
     "submitSeed(bytes28)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
+    "verifyProofTimeout()": FunctionFragment;
+    "verifyReward()": FunctionFragment;
+    "verifyThreshold()": FunctionFragment;
     "withdraw()": FunctionFragment;
   };
 
@@ -81,6 +91,10 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "hasVerifyRole",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "lockPeriod",
     values?: undefined
   ): string;
@@ -93,20 +107,20 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "rewardUnit",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "sectorAtIndex",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "sectorVerification_callback",
-    values: [BytesLike, BytesLike, boolean]
+    functionFragment: "sectorReward",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "sectorWithAfid",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "seedReward",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "seedUsed", values: [BytesLike]): string;
   encodeFunctionData(
@@ -114,8 +128,32 @@ interface TurboFilInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setReward",
+    functionFragment: "setSectorReward",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSeedReward",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSubmitProofTimeout",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setVerifyProofTimeout",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setVerifyReward",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setVerifyThreshold",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "submitProofTimeout",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "submitSector",
@@ -128,6 +166,18 @@ interface TurboFilInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "verifyProofTimeout",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "verifyReward",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "verifyThreshold",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
@@ -158,31 +208,62 @@ interface TurboFilInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "hasVerifyRole",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "lockPeriod", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "rewardUnit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sectorAtIndex",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "sectorVerification_callback",
+    functionFragment: "sectorReward",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "sectorWithAfid",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "seedReward", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "seedUsed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setLockPeriod",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setReward", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setSectorReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSeedReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSubmitProofTimeout",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVerifyProofTimeout",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVerifyReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVerifyThreshold",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "submitProofTimeout",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "submitSector",
     data: BytesLike
@@ -192,6 +273,18 @@ interface TurboFilInterface extends ethers.utils.Interface {
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyProofTimeout",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyThreshold",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
@@ -199,14 +292,14 @@ interface TurboFilInterface extends ethers.utils.Interface {
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
     "SectorSubmission(address,bytes28,address)": EventFragment;
-    "SeedSectorVerify(bytes28,bytes28)": EventFragment;
+    "VerificationTask(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SectorSubmission"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SeedSectorVerify"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VerificationTask"): EventFragment;
 }
 
 export class TurboFil extends Contract {
@@ -308,6 +401,13 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    hasVerifyRole(addr_: string, overrides?: CallOverrides): Promise<[boolean]>;
+
+    "hasVerifyRole(address)"(
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     lockPeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "lockPeriod()"(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -336,10 +436,6 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    rewardUnit(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "rewardUnit()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     sectorAtIndex(
       index_: BigNumberish,
       overrides?: CallOverrides
@@ -350,19 +446,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    sectorVerification_callback(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    sectorReward(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "sectorVerification_callback(bytes28,bytes28,bool)"(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    "sectorReward()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     sectorWithAfid(
       afid_: BytesLike,
@@ -373,6 +459,10 @@ export class TurboFil extends Contract {
       afid_: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    seedReward(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "seedReward()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -391,15 +481,69 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setReward(
+    setSectorReward(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "setReward(uint256)"(
+    "setSectorReward(uint256)"(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    setSeedReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setSeedReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSubmitProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setSubmitProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setVerifyProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setVerifyProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setVerifyReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setVerifyReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setVerifyThreshold(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setVerifyThreshold(uint256)"(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    submitProofTimeout(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "submitProofTimeout()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     submitSector(
       owner_: string,
@@ -432,6 +576,18 @@ export class TurboFil extends Contract {
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    verifyProofTimeout(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "verifyProofTimeout()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    verifyReward(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "verifyReward()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    verifyThreshold(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "verifyThreshold()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -497,6 +653,13 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  hasVerifyRole(addr_: string, overrides?: CallOverrides): Promise<boolean>;
+
+  "hasVerifyRole(address)"(
+    addr_: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
   "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -525,10 +688,6 @@ export class TurboFil extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   sectorAtIndex(
     index_: BigNumberish,
     overrides?: CallOverrides
@@ -539,19 +698,9 @@ export class TurboFil extends Contract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  sectorVerification_callback(
-    seed_: BytesLike,
-    sector_afid_: BytesLike,
-    result_: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  sectorReward(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "sectorVerification_callback(bytes28,bytes28,bool)"(
-    seed_: BytesLike,
-    sector_afid_: BytesLike,
-    result_: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  "sectorReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   sectorWithAfid(afid_: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -559,6 +708,10 @@ export class TurboFil extends Contract {
     afid_: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  seedReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "seedReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
@@ -577,15 +730,69 @@ export class TurboFil extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setReward(
+  setSectorReward(
     reward_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "setReward(uint256)"(
+  "setSectorReward(uint256)"(
     reward_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  setSeedReward(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setSeedReward(uint256)"(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setSubmitProofTimeout(
+    timeout_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setSubmitProofTimeout(uint256)"(
+    timeout_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setVerifyProofTimeout(
+    timeout_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setVerifyProofTimeout(uint256)"(
+    timeout_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setVerifyReward(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setVerifyReward(uint256)"(
+    reward_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setVerifyThreshold(
+    threshold_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setVerifyThreshold(uint256)"(
+    threshold_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  submitProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "submitProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   submitSector(
     owner_: string,
@@ -618,6 +825,18 @@ export class TurboFil extends Contract {
     interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  verifyProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "verifyProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  verifyReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "verifyReward()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  verifyThreshold(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "verifyThreshold()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   withdraw(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -683,6 +902,13 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    hasVerifyRole(addr_: string, overrides?: CallOverrides): Promise<boolean>;
+
+    "hasVerifyRole(address)"(
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
     "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -711,10 +937,6 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     sectorAtIndex(
       index_: BigNumberish,
       overrides?: CallOverrides
@@ -725,19 +947,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    sectorVerification_callback(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    sectorReward(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "sectorVerification_callback(bytes28,bytes28,bool)"(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    "sectorReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sectorWithAfid(
       afid_: BytesLike,
@@ -748,6 +960,10 @@ export class TurboFil extends Contract {
       afid_: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    seedReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "seedReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
@@ -766,12 +982,69 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setReward(reward_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    "setReward(uint256)"(
+    setSectorReward(
       reward_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    "setSectorReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSeedReward(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setSeedReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSubmitProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setSubmitProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVerifyProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVerifyProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVerifyReward(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVerifyReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVerifyThreshold(
+      threshold_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setVerifyThreshold(uint256)"(
+      threshold_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    submitProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "submitProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     submitSector(
       owner_: string,
@@ -801,6 +1074,18 @@ export class TurboFil extends Contract {
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    verifyProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    verifyReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyReward()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    verifyThreshold(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyThreshold()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdraw(overrides?: CallOverrides): Promise<void>;
 
@@ -844,13 +1129,9 @@ export class TurboFil extends Contract {
       { owner: string; afid: string; sector: string }
     >;
 
-    SeedSectorVerify(
-      seed: null,
-      sector_afid: null
-    ): TypedEventFilter<
-      [string, string],
-      { seed: string; sector_afid: string }
-    >;
+    VerificationTask(
+      verification: null
+    ): TypedEventFilter<[string], { verification: string }>;
   };
 
   estimateGas: {
@@ -912,6 +1193,13 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    hasVerifyRole(addr_: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    "hasVerifyRole(address)"(
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     lockPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
     "lockPeriod()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -940,10 +1228,6 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    rewardUnit(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "rewardUnit()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     sectorAtIndex(
       index_: BigNumberish,
       overrides?: CallOverrides
@@ -954,19 +1238,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    sectorVerification_callback(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    sectorReward(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "sectorVerification_callback(bytes28,bytes28,bool)"(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    "sectorReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     sectorWithAfid(
       afid_: BytesLike,
@@ -977,6 +1251,10 @@ export class TurboFil extends Contract {
       afid_: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    seedReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "seedReward()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     seedUsed(seed_: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -995,15 +1273,69 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setReward(
+    setSectorReward(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "setReward(uint256)"(
+    "setSectorReward(uint256)"(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setSeedReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setSeedReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setSubmitProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setSubmitProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setVerifyProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setVerifyProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setVerifyReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setVerifyReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setVerifyThreshold(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setVerifyThreshold(uint256)"(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    submitProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "submitProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     submitSector(
       owner_: string,
@@ -1036,6 +1368,18 @@ export class TurboFil extends Contract {
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    verifyProofTimeout(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyProofTimeout()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    verifyReward(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyReward()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    verifyThreshold(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "verifyThreshold()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1113,6 +1457,16 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    hasVerifyRole(
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasVerifyRole(address)"(
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     lockPeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "lockPeriod()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1141,10 +1495,6 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    rewardUnit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "rewardUnit()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     sectorAtIndex(
       index_: BigNumberish,
       overrides?: CallOverrides
@@ -1155,19 +1505,9 @@ export class TurboFil extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    sectorVerification_callback(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    sectorReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "sectorVerification_callback(bytes28,bytes28,bool)"(
-      seed_: BytesLike,
-      sector_afid_: BytesLike,
-      result_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    "sectorReward()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sectorWithAfid(
       afid_: BytesLike,
@@ -1178,6 +1518,10 @@ export class TurboFil extends Contract {
       afid_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    seedReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "seedReward()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     seedUsed(
       seed_: BytesLike,
@@ -1199,14 +1543,72 @@ export class TurboFil extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setReward(
+    setSectorReward(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setReward(uint256)"(
+    "setSectorReward(uint256)"(
       reward_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSeedReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setSeedReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSubmitProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setSubmitProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVerifyProofTimeout(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setVerifyProofTimeout(uint256)"(
+      timeout_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVerifyReward(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setVerifyReward(uint256)"(
+      reward_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVerifyThreshold(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setVerifyThreshold(uint256)"(
+      threshold_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    submitProofTimeout(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "submitProofTimeout()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     submitSector(
@@ -1238,6 +1640,24 @@ export class TurboFil extends Contract {
 
     "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    verifyProofTimeout(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "verifyProofTimeout()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    verifyReward(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "verifyReward()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    verifyThreshold(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "verifyThreshold()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
