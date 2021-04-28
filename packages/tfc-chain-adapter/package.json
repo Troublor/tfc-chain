@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "typedoc": "typedoc --out docs --readme README_en.md src/index.ts",
-    "build": "tsc && yarn typedoc"
+    "build": "tsc && yarn typedoc",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@tfc-chain/core": "^2.0.1",
@@ -14,5 +15,6 @@
   },
   "devDependencies": {
     "typedoc": "^0.20.36"
-  }
+  },
+  "gitHead": "ef96ef9facc5f488fef27480d360c31e3a5c1680"
 }

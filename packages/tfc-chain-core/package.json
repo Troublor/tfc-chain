@@ -9,7 +9,7 @@
   "scripts": {
     "dev:remixd": "remixd -s ./contracts --remix-ide https://remix.ethereum.org",
     "build": "hardhat compile && tsc && cp typechain/*.d.ts lib/typechain",
-    "prepack": "yarn compile && yarn test",
+    "prepack": "yarn build && yarn test",
     "test": "jest"
   },
   "dependencies": {
@@ -32,5 +32,6 @@
     "lerna": "^4.0.0",
     "ts-generator": "^0.1.1",
     "typechain": "^4.0.3"
-  }
+  },
+  "gitHead": "ef96ef9facc5f488fef27480d360c31e3a5c1680"
 }
