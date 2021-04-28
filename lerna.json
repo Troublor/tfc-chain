@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/tfc-chain-*"],
+  "packages": ["packages/tfc-chain-core", "packages/tfc-chain-adapter"],
   "version": "independent",
   "npmClient": "yarn",
   "useWorkspaces": true,
