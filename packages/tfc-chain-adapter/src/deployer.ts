@@ -14,11 +14,11 @@ export type DeployInitArgs = {
     verifyProofTimeout: ethers.BigNumberish,
     verifyThreshold: ethers.BigNumberish,
 
-    maintainers: string[],
+    maintainers?: string[],
 }
 
 export class Deployer extends Middleware {
-    static async deploy(chainEndpoint: string, deployerPrivateKey: string, initArgs: DeployInitArgs): Promise<Deployer> {
+    static async deploy(chainEndpoint: string, deployerPrivateKey: string, initArgs: DeployInitArgs): Promise<string> {
         // init provider
         const provider = endpoint2Provider(chainEndpoint);
         // init deploy account
@@ -32,7 +32,7 @@ export class Deployer extends Middleware {
         await turboFil.deployed();
         console.log('TurboFil contract deployed:', turboFil.address);
 
-        if (initArgs.maintainers.length > 0) {
+        if (initArgs.maintainers && initArgs.maintainers.length > 0) {
             const promises: Promise<unknown>[] = [];
             for (const addr of initArgs.maintainers) {
                 console.log('Granting MAINTAIN_ROLE to', addr);
@@ -43,7 +43,7 @@ export class Deployer extends Middleware {
         }
         console.log('Deployment finished');
 
-        return new Deployer(chainEndpoint, deployerPrivateKey, turboFil.address);
+        return turboFil.address;
     }
 
     constructor(chainEndpoint: string, deployerPrivateKey: string, turboFilAddress: string) {
