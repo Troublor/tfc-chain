@@ -95,13 +95,16 @@ describe('TurboFil', () => {
             });
 
             test('Other people cannot submit proof', async () => {
-                await expect(verification.connect(seedSubmitter).submitProof('abcdef'))
+                await expect(verification.connect(seedSubmitter).submitProof(genAfid()))
                     .rejects.toThrow('Verification: caller is not sector owner');
             });
 
             describe('Proof submitted', () => {
+                let proof: string;
+
                 beforeEach(async () => {
-                    const tx = await verification.connect(rnode).submitProof('proof');
+                    proof = genAfid();
+                    const tx = await verification.connect(rnode).submitProof(proof);
                     await tx.wait(1);
                 });
 
@@ -117,7 +120,7 @@ describe('TurboFil', () => {
                     expect(event?.event).toEqual('ProofVerified');
                     expect(event?.args?.[0]).toEqual(sectorAfid);
                     expect(event?.args?.[1]).toEqual(seed);
-                    expect(event?.args?.[2]).toEqual('proof');
+                    expect(event?.args?.[2]).toEqual(proof);
                     expect(event?.args?.[3]).toEqual(true);
 
                     event = receipt.events?.[1];

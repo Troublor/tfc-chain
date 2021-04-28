@@ -36,7 +36,7 @@ interface VerificationInterface extends ethers.utils.Interface {
     "seedReward()": FunctionFragment;
     "seedSubmitter()": FunctionFragment;
     "status()": FunctionFragment;
-    "submitProof(string)": FunctionFragment;
+    "submitProof(bytes28)": FunctionFragment;
     "submitProofDDL()": FunctionFragment;
     "turboFil()": FunctionFragment;
     "verifyProof(bool)": FunctionFragment;
@@ -84,7 +84,10 @@ interface VerificationInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "status", values?: undefined): string;
-  encodeFunctionData(functionFragment: "submitProof", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "submitProof",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "submitProofDDL",
     values?: undefined
@@ -173,8 +176,8 @@ interface VerificationInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "ProofSubmitted(bytes28,bytes28,string)": EventFragment;
-    "ProofVerified(bytes28,bytes28,string,bool)": EventFragment;
+    "ProofSubmitted(bytes28,bytes28,bytes28)": EventFragment;
+    "ProofVerified(bytes28,bytes28,bytes28,bool)": EventFragment;
     "VerifyFinish(bool)": EventFragment;
   };
 
@@ -295,12 +298,12 @@ export class Verification extends Contract {
     "status()"(overrides?: CallOverrides): Promise<[number]>;
 
     submitProof(
-      proof_: string,
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "submitProof(string)"(
-      proof_: string,
+    "submitProof(bytes28)"(
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -403,12 +406,12 @@ export class Verification extends Contract {
   "status()"(overrides?: CallOverrides): Promise<number>;
 
   submitProof(
-    proof_: string,
+    proof_: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "submitProof(string)"(
-    proof_: string,
+  "submitProof(bytes28)"(
+    proof_: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -506,10 +509,10 @@ export class Verification extends Contract {
 
     "status()"(overrides?: CallOverrides): Promise<number>;
 
-    submitProof(proof_: string, overrides?: CallOverrides): Promise<void>;
+    submitProof(proof_: BytesLike, overrides?: CallOverrides): Promise<void>;
 
-    "submitProof(string)"(
-      proof_: string,
+    "submitProof(bytes28)"(
+      proof_: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -635,12 +638,12 @@ export class Verification extends Contract {
     "status()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     submitProof(
-      proof_: string,
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "submitProof(string)"(
-      proof_: string,
+    "submitProof(bytes28)"(
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -759,12 +762,12 @@ export class Verification extends Contract {
     "status()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     submitProof(
-      proof_: string,
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "submitProof(string)"(
-      proof_: string,
+    "submitProof(bytes28)"(
+      proof_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -19,7 +19,7 @@ contract Verification {
     
     uint8 public status;
     
-    string _proof;
+    bytes28 _proof;
     uint256 _submitProofDDL;
     
     uint256 _verifyProofDDL;
@@ -32,8 +32,8 @@ contract Verification {
         _;
     }
     
-    event ProofSubmitted(bytes28 sector_afid, bytes28 seed, string proof);
-    event ProofVerified(bytes28 sector_afid, bytes28 seed, string proof, bool result);
+    event ProofSubmitted(bytes28 sector_afid, bytes28 seed, bytes28 proof);
+    event ProofVerified(bytes28 sector_afid, bytes28 seed, bytes28 proof, bool result);
     event VerifyFinish(bool result);
     
     /// @dev created by TurboFil
@@ -58,7 +58,7 @@ contract Verification {
         verifyThreshold = verifyThreshold_;
     }
     
-    function submitProof(string calldata proof_) onlyStatus(STATUS_WAITING) external {
+    function submitProof(bytes28 proof_) onlyStatus(STATUS_WAITING) external {
         require(sector.owner() == msg.sender, "Verification: caller is not sector owner");
         require(block.number <= _submitProofDDL, "Verification: submit proof too late");
         
@@ -120,7 +120,7 @@ contract Verification {
     
     /* View functions */
     
-    function proof() onlyStatus(STATUS_VERIFYING) view public returns (string memory) {
+    function proof() onlyStatus(STATUS_VERIFYING) view public returns (bytes28) {
         return _proof;
     }
     

@@ -107,6 +107,10 @@ const lastBlockNumber = 0
 rnode.onSectorVerificationTask((sectorAfid: Buffer, seed: Buffer, verification: string)=> {
     ... // verification为本次验证的标识ID，提交Proof时需要用到
 }, afid, lastBlockNumber);
+
+// 提交proof
+const proof = Buffer.from('0x......') // afid_lite 28 bytes
+await rnode.submitProof(verification, afid);
 ```
 
 ### Verifier
@@ -126,7 +130,7 @@ const verifier = new Verifier(endpoint, privateKey, turboFilAddress);
 
 // 监听proof被提交的事件
 const lastBlockNumber = 0
-rnode.onSectorProofSubmitted((sectorAfid: Buffer, seed: Buffer, proof: string)=> {
+rnode.onSectorProofSubmitted((sectorAfid: Buffer, seed: Buffer, proof: Buffer)=> {
     ...
 }, lastBlockNumber);
 ```

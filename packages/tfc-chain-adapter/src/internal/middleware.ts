@@ -87,7 +87,7 @@ export class Middleware extends EventEmitter<Events> {
         return this;
     }
 
-    onSectorProofSubmitted(listener: (sectorAfid: Buffer, seed: Buffer, proof: string) => never, fromBlock?: number): Middleware {
+    onSectorProofSubmitted(listener: (sectorAfid: Buffer, seed: Buffer, proof: Buffer) => never, fromBlock?: number): Middleware {
         const topic = skeletons.Verification.factory.interface.getEventTopic('ProofSubmitted');
         const filter = {
             topics: [
@@ -104,7 +104,7 @@ export class Middleware extends EventEmitter<Events> {
                 }).then(logs => {
                     for (const log of logs) {
                         const description = skeletons.Verification.factory.interface.parseLog(log);
-                        listener(Buffer.from(description.args[0]), Buffer.from(description.args[1]), description.args[2]);
+                        listener(Buffer.from(description.args[0]), Buffer.from(description.args[1]), Buffer.from(description.args[2]));
                     }
                 });
             }

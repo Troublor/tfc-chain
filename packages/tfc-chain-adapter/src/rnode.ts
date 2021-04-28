@@ -11,7 +11,7 @@ export class RNode extends Middleware {
         return await tx.wait(this.confirmationRequirement);
     }
 
-    async submitProof(verification: string, proof: string): Promise<ethers.ContractReceipt> {
+    async submitProof(verification: string, proof: Buffer): Promise<ethers.ContractReceipt> {
         const tx = await skeletons.Verification.factory.attach(verification).connect(this.wallet).submitProof(proof);
         return await tx.wait(this.confirmationRequirement);
     }

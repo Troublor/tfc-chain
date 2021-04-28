@@ -1,7 +1,7 @@
 import {TurboFil, TurboFil__factory} from './typechain';
 import {task} from 'hardhat/config';
 import '@nomiclabs/hardhat-ethers';
-import {deployments, skeletons} from './lib';
+import {deployments, skeletons} from './src/defines';
 import {ethers} from 'ethers';
 
 task('deploy', 'Deploy TurboFil contracts')
