@@ -1,11 +1,6 @@
 {
-  "packages": ["packages/tfc-chain-core", "packages/tfc-chain-adapter"],
+  "packages": ["packages/tfc-chain-*"],
   "version": "independent",
   "npmClient": "yarn",
-  "useWorkspaces": true,
-  "command": {
-    "publish": {
-      "ignoreChanges": ["packages/tfc-chain-test"]
-    }
-  }
+  "useWorkspaces": true
 }
