@@ -149,3 +149,63 @@ const seedSubmitter = new SeedSubmitter(endpoint, privateKey, turboFilAddress);
 const seed = Buffer.from('0x......') // afid_lite 28 bytes
 await seedSubmitter.submitSeed(seed);
 ```
+
+## 本地测试环境
+
+安装本地测试区块链：
+```
+# NPM
+npm i --save-dev ganache-cli
+
+# Yarn
+yarn add --dev ganache-cli
+```
+
+启动本地测试区块链：
+```
+# NPM
+npm run ganache-cli --deterministic --gasPrice 0
+
+# Yarn
+yarn ganache-cli --deterministic --gasPrice 0
+```
+测试区块链会在有新的交易时出块（按需出块），可以使用`--blockTime`选项改为固定出块时间（秒）。
+
+测试区块链的endpoint为：http://localhost:8545
+
+可用的账户的地址和私钥会在控制台打印出来。
+
+## 部署TurboFil合约
+
+```typescript
+import {Deployer, DeployInitArgs} from '@tfc-chain/adapter';
+
+const endpoint = 'http://localhost:8545';
+const privateKey = '0x......';
+
+const initArgs: DeployInitArgs = {
+    sectorReward: 1,
+    seedReward: 1,
+    verifyReward: 1,
+
+    submitProofTimeout: 6,
+    verifyProofTimeout: 12,
+    verifyThreshold: 1,
+
+    lockPeriod: 3,
+}
+
+const turboFilAddress = await Deployer.deploy(endpoint, privateKey, initArgs);
+```
+
+## 处理链重构（chain reorganization)
+
+每一个对象（Deployer, Maintainer, RNode, Verifier, SeedSubmitter)都有一个属性`confirmationRequirement`。
+
+假设该属性的值为`x`，该属性规定了:
+- 交易被执行`x`个区块之后，Promise resolve
+- 交易被执行`x`个区块之后，合约事件被认为发生
+
+`x >= 1`
+
+注意：测试区块链环境下`x`必须设为1。
