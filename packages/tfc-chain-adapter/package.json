@@ -1,6 +1,6 @@
 {
   "name": "@tfc-chain/adapter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
@@ -9,7 +9,7 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "@tfc-chain/core": "^2.0.1",
+    "@tfc-chain/core": "^2.0.2",
     "@troubkit/tools": "^0.4.0",
     "ethers": "^5.1.4"
   },
