@@ -7,7 +7,8 @@ import * as fs from 'fs';
 import path from 'path';
 
 const env = yaml.load(fs.readFileSync(path.join(__dirname, 'env.yml'), {encoding: 'utf-8'})) as {
-    deployerPrivateKey: string,
+    endpoint: string,
+    accountPrivateKey: string[],
 };
 
 module.exports = {
@@ -29,14 +30,10 @@ module.exports = {
         runOnCompile: true,
     },
     networks: {
-        hardhat: {},
         development: {
-            url: 'http://localhost:8545',
+            url: env.endpoint,
             chainId: 9500,
-            from: 'd8444321ba7f99883a20ff2157a4e419f92e6fc5',
-            accounts: [
-                env.deployerPrivateKey,
-            ],
+            accounts: env.accountPrivateKey,
         },
     },
 } as HardhatUserConfig;
