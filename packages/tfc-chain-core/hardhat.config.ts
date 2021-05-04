@@ -6,10 +6,24 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import path from 'path';
 
-const env = yaml.load(fs.readFileSync(path.join(__dirname, 'env.yml'), {encoding: 'utf-8'})) as {
+const envFile = path.join(__dirname, 'env.yml');
+let env: {
     endpoint: string,
     accountPrivateKey: string[],
 };
+if (fs.existsSync(envFile)) {
+    env = yaml.load(fs.readFileSync(envFile, {encoding: 'utf-8'})) as {
+        endpoint: string,
+        accountPrivateKey: string[],
+    };
+}else {
+    env = {
+        endpoint: 'http://localhost:8545',
+        accountPrivateKey: [],
+    };
+}
+
+
 
 module.exports = {
     solidity: {
