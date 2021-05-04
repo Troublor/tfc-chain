@@ -9,7 +9,7 @@
     "packages/tfc-chain-*"
   ],
   "scripts": {
-    "build:core": "yarn workspace @tfc-chain/core compile",
+    "build:core": "yarn workspace @tfc-chain/core build",
     "build": "npm-run-all build:*",
     "test:core": "yarn workspace @tfc-chain/core test",
     "test": "npm-run-all test:*"
