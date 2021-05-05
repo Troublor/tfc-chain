@@ -130,9 +130,13 @@ const verifier = new Verifier(endpoint, privateKey, turboFilAddress);
 
 // 监听proof被提交的事件
 const lastBlockNumber = 0
-rnode.onSectorProofSubmitted((sectorAfid: Buffer, seed: Buffer, proof: Buffer)=> {
+verifier.onSectorProofSubmitted((sectorAfid: Buffer, seed: Buffer, proof: Buffer, verification: string)=> {
     ...
 }, lastBlockNumber);
+
+// 提交verify结果
+const result = true;
+await verifier.verifyProof(verification, result);
 ```
 ### SeedSubmitter
 
