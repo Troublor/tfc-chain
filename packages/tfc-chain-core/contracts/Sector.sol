@@ -3,6 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 // SPDX-License-Identifier: MIT
 
 import "./interfaces.sol";
+import "./Verification.sol";
 
 contract Sector is ISector {
     /// The reward queue. 
@@ -25,10 +26,14 @@ contract Sector is ISector {
     address payable public override owner;
     bytes28 public override afid;
     ITurboFil public turboFil;
-    
-    address public verification;
 
-    event Verification(bytes28 seed, bool result, uint256 reward, uint256 punish);
+    // @notice The sector has been punished and should not be used any more
+    bool public dead;
+
+    // @notice the latest verification for this sector
+    Verification public verification;
+
+    event VerificationResult(bytes28 seed, bool result, uint256 reward, uint256 punish);
     
     modifier onlyTurboFil {
         require(msg.sender == address(turboFil), "Sector: can only be called by TurboFil");
@@ -41,7 +46,7 @@ contract Sector is ISector {
     }
     
     modifier onlyVerification {
-        require(msg.sender == verification, "Sector: can only be called by correct verification");
+        require(address(verification) == msg.sender, "Sector: can only be called by correct verification");
         _;
     }
 
@@ -55,20 +60,20 @@ contract Sector is ISector {
     }
     
     function setVerification(address verification_) onlyTurboFil external {
-        verification = verification_;
+        verification=Verification(verification_);
     }
     
     function verificationResult(bytes28 seed_, bool result_) onlyVerification payable external override {
         uint256 reward;
-        uint256 punish;
+        uint256 pun;
         if (result_){
             reward = msg.value;
             _reward(reward);
         } else {
-            punish = _punish();
+            pun = punish();
             payable(address(turboFil)).transfer(msg.value);
         }
-        emit Verification(seed_, result_, reward, punish);
+        emit VerificationResult(seed_, result_, reward, pun);
     }
 
     function _reward(uint256 amount_) internal returns (uint256 unlocked) {
@@ -93,12 +98,15 @@ contract Sector is ISector {
         }
     }
 
-    function _punish() internal returns (uint256 amount) {
+    // @dev Punish this sector. Only turboFil and verification contract can call this function.
+    function punish() public returns (uint256 amount) {
+        require(msg.sender == address(turboFil) || msg.sender == address(verification), "Sector: caller does not have privilege to punish");
         amount += _deposit.shard * _deposit.nShards;
         amount += _rewards.total;
         if(amount > 0){
             payable(address(turboFil)).transfer(amount);
         }
+        dead = true;
     }
     
     /* View functions */

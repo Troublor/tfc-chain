@@ -23,8 +23,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface SectorInterface extends ethers.utils.Interface {
   functions: {
     "afid()": FunctionFragment;
+    "dead()": FunctionFragment;
     "lockedTFC()": FunctionFragment;
     "owner()": FunctionFragment;
+    "punish()": FunctionFragment;
     "setVerification(address)": FunctionFragment;
     "turboFil()": FunctionFragment;
     "verification()": FunctionFragment;
@@ -32,8 +34,10 @@ interface SectorInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "afid", values?: undefined): string;
+  encodeFunctionData(functionFragment: "dead", values?: undefined): string;
   encodeFunctionData(functionFragment: "lockedTFC", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "punish", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setVerification",
     values: [string]
@@ -49,8 +53,10 @@ interface SectorInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "afid", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "dead", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lockedTFC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "punish", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setVerification",
     data: BytesLike
@@ -66,10 +72,10 @@ interface SectorInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "Verification(bytes28,bool,uint256,uint256)": EventFragment;
+    "VerificationResult(bytes28,bool,uint256,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Verification"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VerificationResult"): EventFragment;
 }
 
 export class Sector extends Contract {
@@ -120,6 +126,10 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<[string]>;
 
+    dead(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "dead()"(overrides?: CallOverrides): Promise<[boolean]>;
+
     lockedTFC(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "lockedTFC()"(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -127,6 +137,14 @@ export class Sector extends Contract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
+
+    punish(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "punish()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     setVerification(
       verification_: string,
@@ -163,6 +181,10 @@ export class Sector extends Contract {
 
   "afid()"(overrides?: CallOverrides): Promise<string>;
 
+  dead(overrides?: CallOverrides): Promise<boolean>;
+
+  "dead()"(overrides?: CallOverrides): Promise<boolean>;
+
   lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
 
   "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -170,6 +192,14 @@ export class Sector extends Contract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
+
+  punish(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "punish()"(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setVerification(
     verification_: string,
@@ -206,6 +236,10 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<string>;
 
+    dead(overrides?: CallOverrides): Promise<boolean>;
+
+    "dead()"(overrides?: CallOverrides): Promise<boolean>;
+
     lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
 
     "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -213,6 +247,10 @@ export class Sector extends Contract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
+
+    punish(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "punish()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     setVerification(
       verification_: string,
@@ -246,7 +284,7 @@ export class Sector extends Contract {
   };
 
   filters: {
-    Verification(
+    VerificationResult(
       seed: null,
       result: null,
       reward: null,
@@ -262,6 +300,10 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    dead(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "dead()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     lockedTFC(overrides?: CallOverrides): Promise<BigNumber>;
 
     "lockedTFC()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -269,6 +311,14 @@ export class Sector extends Contract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    punish(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "punish()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     setVerification(
       verification_: string,
@@ -306,6 +356,10 @@ export class Sector extends Contract {
 
     "afid()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    dead(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "dead()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     lockedTFC(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "lockedTFC()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -313,6 +367,14 @@ export class Sector extends Contract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    punish(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "punish()"(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     setVerification(
       verification_: string,

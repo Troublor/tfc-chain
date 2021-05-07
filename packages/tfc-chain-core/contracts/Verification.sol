@@ -147,4 +147,22 @@ contract Verification {
     function pass() view public returns (bool) {
         return trueVerifiers.length >= verifyThreshold;
     }
+    
+    // @notice Sector owner fails to submit proof within timeout.
+    function abandoned() view public returns (bool) {
+        if (status == STATUS_WAITING && expireSubmitProofDDL()) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+    
+    // @notice Sector owner succeeds to submit proof but there are not enough verifiers within timeout.
+    function deadend() view public returns (bool) {
+        if (status == STATUS_VERIFYING && expireVerifyProofDDL()){
+            return false;
+        }else {
+            return true;
+        }
+    }
 }

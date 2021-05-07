@@ -23,7 +23,9 @@ interface VerificationInterface extends ethers.utils.Interface {
   functions: {
     "STATUS_VERIFYING()": FunctionFragment;
     "STATUS_WAITING()": FunctionFragment;
+    "abandoned()": FunctionFragment;
     "collectFunds()": FunctionFragment;
+    "deadend()": FunctionFragment;
     "expireSubmitProofDDL()": FunctionFragment;
     "expireVerifyProofDDL()": FunctionFragment;
     "fail()": FunctionFragment;
@@ -53,10 +55,12 @@ interface VerificationInterface extends ethers.utils.Interface {
     functionFragment: "STATUS_WAITING",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "abandoned", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "collectFunds",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "deadend", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "expireSubmitProofDDL",
     values?: undefined
@@ -118,10 +122,12 @@ interface VerificationInterface extends ethers.utils.Interface {
     functionFragment: "STATUS_WAITING",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "abandoned", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "collectFunds",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "deadend", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "expireSubmitProofDDL",
     data: BytesLike
@@ -238,6 +244,10 @@ export class Verification extends Contract {
 
     "STATUS_WAITING()"(overrides?: CallOverrides): Promise<[number]>;
 
+    abandoned(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "abandoned()"(overrides?: CallOverrides): Promise<[boolean]>;
+
     collectFunds(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -245,6 +255,10 @@ export class Verification extends Contract {
     "collectFunds()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    deadend(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "deadend()"(overrides?: CallOverrides): Promise<[boolean]>;
 
     expireSubmitProofDDL(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -346,6 +360,10 @@ export class Verification extends Contract {
 
   "STATUS_WAITING()"(overrides?: CallOverrides): Promise<number>;
 
+  abandoned(overrides?: CallOverrides): Promise<boolean>;
+
+  "abandoned()"(overrides?: CallOverrides): Promise<boolean>;
+
   collectFunds(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -353,6 +371,10 @@ export class Verification extends Contract {
   "collectFunds()"(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  deadend(overrides?: CallOverrides): Promise<boolean>;
+
+  "deadend()"(overrides?: CallOverrides): Promise<boolean>;
 
   expireSubmitProofDDL(overrides?: CallOverrides): Promise<boolean>;
 
@@ -454,9 +476,17 @@ export class Verification extends Contract {
 
     "STATUS_WAITING()"(overrides?: CallOverrides): Promise<number>;
 
+    abandoned(overrides?: CallOverrides): Promise<boolean>;
+
+    "abandoned()"(overrides?: CallOverrides): Promise<boolean>;
+
     collectFunds(overrides?: CallOverrides): Promise<void>;
 
     "collectFunds()"(overrides?: CallOverrides): Promise<void>;
+
+    deadend(overrides?: CallOverrides): Promise<boolean>;
+
+    "deadend()"(overrides?: CallOverrides): Promise<boolean>;
 
     expireSubmitProofDDL(overrides?: CallOverrides): Promise<boolean>;
 
@@ -578,6 +608,10 @@ export class Verification extends Contract {
 
     "STATUS_WAITING()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    abandoned(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "abandoned()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     collectFunds(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -585,6 +619,10 @@ export class Verification extends Contract {
     "collectFunds()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    deadend(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "deadend()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     expireSubmitProofDDL(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -691,6 +729,10 @@ export class Verification extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    abandoned(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "abandoned()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     collectFunds(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -698,6 +740,10 @@ export class Verification extends Contract {
     "collectFunds()"(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    deadend(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "deadend()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     expireSubmitProofDDL(
       overrides?: CallOverrides

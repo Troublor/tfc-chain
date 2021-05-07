@@ -62,8 +62,18 @@ contract TurboFil is AccessControl, ITurboFil {
     function submitSeed(bytes28 seed_) public {
         require(hasRole(SEED_ROLE, msg.sender), "TurboFil: caller does not have privilege to submit seed");
         require(!seedUsed(seed_), "TurboFil: seed already used");
+        require(sectorList.length > 0, "TurboFil: no available sectors");
+        usedSeeds[seed_] = true;
 
-        uint256 index = uint224(seed_) * block.timestamp % sectorList.length;
+        // We try to find a sector that is ready to verify (i.e., no on-going verification and not punished)
+        uint256 originalIndex = uint224(seed_) * block.timestamp % sectorList.length;
+        uint256 index = originalIndex;
+        while(!_sectorAtIndexReady(index)) {
+            index = (index + 1) % sectorList.length;
+            if (originalIndex >= sectorList.length || index == originalIndex) {
+                revert("TurboFil: no available sectors");
+            }
+        }
         Sector sector = sectorList[index];
         
         uint256 reward = sectorReward + seedReward + verifyReward * verifyThreshold;
@@ -78,6 +88,37 @@ contract TurboFil is AccessControl, ITurboFil {
         
         // notify off-chain monitor that a verification should be performed.
         emit VerificationTask(sector.afid(), seed_, address(verification));
+    }
+    
+    // @dev Check if the sector is ready for a new verification.
+    // @dev If sector's verification is finished, return true;
+    // @dev If sector's verification does not get proof from sector owner but timeout, then punish, delete from sectorList and return true;
+    // @dev If sector's verification does not get enough verifiers but timeout, return true;
+    // @dev If sector's verification is still on-going, return false;
+    function _sectorAtIndexReady(uint256 sectorIndex_) internal returns (bool) {
+        Sector sector = sectorList[sectorIndex_];
+        if (sector.dead()) {
+            _deleteSectorAtIndex(sectorIndex_);
+            return true;
+        }else if (address(sector.verification()) == address(0)){
+            return true;
+        }else if (sector.verification().abandoned()){
+            sector.punish();
+            _deleteSectorAtIndex(sectorIndex_);
+            return true;
+        }else if (sector.verification().deadend()){
+            return true;
+        }else {
+            return true;
+        }
+    }
+    
+    function _deleteSectorAtIndex(uint256 sectorIndex_) internal {
+        Sector sector = sectorList[sectorIndex_];
+        sectorList[sectorIndex_] = sectorList[sectorList.length - 1];
+        sectorList.pop();
+        bytes28 afid = sector.afid();
+        sectors[afid] = Sector(address(0));
     }
     
     /* Maintenance functions */
