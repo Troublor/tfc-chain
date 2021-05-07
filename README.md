@@ -26,5 +26,6 @@ TFC-Chain链上合约的实现：[./packages/tfc-chain-core](./packages/tfc-chai
 
 ## @tfc-chain/key
 
-TFC-Chain公私钥管理的Go Package。
+TFC-Chain公私钥管理的Go Package：[./packages/tfc-chain-key](./packages/tfc-chain-key)
+
 提供CLI，可使用命令行调用。
