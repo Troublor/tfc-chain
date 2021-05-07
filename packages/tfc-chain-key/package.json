@@ -1,0 +1,10 @@
+{
+  "name": "@tfc-chain/key",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "go build -o bin/tfc-chain-key main/cli.go",
+    "test": "go test ./..."
+  },
+  "dependencies": {
+  }
+}

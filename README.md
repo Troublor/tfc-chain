@@ -4,6 +4,7 @@
 
 - Node.js `14`
 - Yarn `1.*`
+- Go: `1.6+`
 
 ## 安装依赖
 
@@ -23,3 +24,8 @@ TFC-Chain链上合约的实现：[./packages/tfc-chain-core](./packages/tfc-chai
 ## @tfc-chain/adapter
 
 用于调用智能合约的SDK：[./packages/tfc-chain-adapter](./packages/tfc-chain-adapter)
+
+## @tfc-chain/key
+
+TFC-Chain公私钥管理的Go Package。
+提供CLI，可使用命令行调用。
