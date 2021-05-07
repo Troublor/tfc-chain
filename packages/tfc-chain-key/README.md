@@ -15,6 +15,11 @@
 
 ## 命令行接口
 
+### 下载源码
+```bash
+git clone https://github.com/Troublor/tfc-chain.git && cd tfc-chain/packages/tfc-chain-key
+```
+
 ### 编译可执行文件
 
 ```bash
@@ -47,6 +52,12 @@ yarn workspace @tfc-chain/key build
 
 ## Go Package
 
+安装`tfc-chain-key`包：
+```bash
+go get -u github.com/Troublor/tfc-chain/packages/tfc-chain-key
+```
+
+Import`tfc-chain-key`包：
 ```go
 import "github.com/Troublor/tfc-chain/packages/tfc-chain-key/key"
 ```
