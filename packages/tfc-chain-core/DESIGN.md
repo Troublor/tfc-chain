@@ -1,4 +1,177 @@
-# TurboFil 智能合约设计 （还未更新）
+# TurboFil 智能合约设计
+
+## 五种账户角色
+
+![Roles](./img/roles.jpg)
+
+TurboFil的智能合约设计中包括了五种角色，分别有不同的权限来执行不同的交易。
+每个角色都可以有多个TFC-Chain上的账户。
+每个账户也可以同时有多种角色。
+
+账户角色的智能合约实现继承了`Openzeppelin`代码库中的[`AccessControl.sol`](https://docs.openzeppelin.com/contracts/4.x/access-control) 合约，可以使用相关接口。
+
+### Admin (DEFAULT_ADMIN_ROLE)
+
+属于Admin角色的账户拥有权限管理的权限。可以：
+- 给其他账户授权某一种角色及其权限
+- 收回其他账户的角色及其权限
+
+#### 命令行调用
+
+1. 设置交易发起账户和TFC-Chain接入点：[见配置文件设置](./README.md#配置文件) 。交易发起账户必须是Admin角色。
+2. 执行hardhat task:
+
+**给一个账户赋予角色及其权限**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development grant-role --role <role> --account <address>
+```
+
+**收回一个账户的角色**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development revoke-role --role <role> --account <address>
+```
+其中：
+- `<role>`是角色种类，可选值为：`DEFAULT_ADMIN_ROLE`, `MAINTAIN_ROLE`, `SECTOR_ROLE`, `SEED_ROLE`, `VERIFY_ROLE`。
+- `<address>`是被授予/收回角色的账户地址
+
+### Maintainer (MAINTAIN_ROLE)
+
+属于Maintainer角色的账户拥有维护TurboFil的权限。包括：
+- 设置Sector验证通过时给予SectorOwner的奖励
+- 设置Sector验证完成时给予SeedSubmitter的奖励
+- 设置Sector验证完成时给予ProofVerifier的奖励
+- 设置Sector验证完成需要的最少的提交验证结果的ProofVerifier数量
+- 设置SectorOwner获得的奖励的锁定时间
+- 设置SectorOwner提交Proof的时间限制
+- 设置ProofVerifier验证Proof的时间限制
+- 向TurboFil智能合约转账，TurboFil智能合约的TFC余额会用于发放奖励
+- 提取TurboFIl智能合约中的所有TFC余额
+
+#### 命令行调用
+
+1. 设置交易发起账户和TFC-Chain接入点：[见配置文件设置](./README.md#配置文件) 。交易发起账户必须是Maintainer角色。
+2. 执行hardhat task:
+
+**设置Sector验证通过时给予SectorOwner的奖励**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-sector-reward --reward <reward>
+```
+
+**设置Sector验证完成时给予SeedSubmitter的奖励**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-seed-reward --reward <reward>
+```
+
+**设置Sector验证完成时给予ProofVerifier的奖励**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-verify-reward --reward <reward>
+```
+其中`<reward>`为奖励金额，是一个用TFC最小单位表示的整数。
+
+**设置Sector验证完成需要的最少的提交验证结果的ProofVerifier数量**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-verify-threshold --threshold <threshold>
+```
+其中`<threshold>`代表验证proof时，能对proof是否有效达成共识的最小的proofVerifier的数量。
+
+**设置SectorOwner获得的奖励的锁定时间**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-lock-period --period <period>
+```
+其中`<period>`代表sector奖励的锁定周期。
+例如：period=90 代表每一个给SectorOwner新发放的奖励，会在之后第90次发放奖励时解锁。
+
+**设置SectorOwner提交Proof的时间限制**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-submit-proof-timeout --timeout <timeout>
+```
+其中`<timeout>`代表当链上发出验证sector要求后，sectorOwner提交proof的时间限制，以区块数量来计算时间。
+例如：timeout=6，代表链上发出验证sector要求后，sectorOwner必须在6个区块内提交proof，否则会被惩罚。
+
+**设置ProofVerifier验证Proof的时间限制**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development set-verify-proof-timeout --timeout <timeout>
+```
+其中`<timeout>`代表当sectorOwner提交proof后，proofVerifier进行验证并提交验证结果的时间限制，以区块数量来计算时间。
+例如：timeout=6，代表当sectorOwner提交proof后，proofVerifier必须在6个区块内提交proof的验证结果，否则不会收到验证奖励。
+
+**向TurboFil智能合约转账，TurboFil智能合约的TFC余额会用于发放奖励**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development fund-turbofil --amount <amount>
+```
+其中`<amount>`为向TurboFil智能合约转账的金额，是一个用TFC最小单位表示的整数。
+
+**提取TurboFIl智能合约中的所有TFC余额到调用者账户**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development withdraw-turbofil
+```
+
+### SectorOwner (SECTOR_ROLE)
+
+SectorOwner角色的账户拥有提交Sector的权限，通常来说，每一个RNode是SectorOwner。
+SectorOwner在收到链上发出的验证要求后，需要提交proof。
+
+#### 命令行调用
+
+1. 设置交易发起账户和TFC-Chain接入点：[见配置文件设置](./README.md#配置文件) 。交易发起账户必须是SectorOwner角色。
+2. 执行hardhat task:
+
+**提交Sector**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development submit-sector --afid <afid>
+```
+其中`<afid>`为sector的afid-lite，为28个字节的hex字符串。
+
+**监听Sector验证要求**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development listen-verification-task --sector <sector>
+```
+其中`<sector>`为sector的在链上对应的地址（Sector合约地址）。`--sector`选项也如果被省略，则监听所有sector。
+
+**提交Proof**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development submit-proof --verification <verification> --afid <afid>
+```
+其中`<verification>`为本次verification的ID（Verification合约地址），`<afid>`为proof的afid-lite，为28个字节的hex字符串。
+
+### SeedSubmitter (SEED_ROLE)
+
+SeedSubmitter角色的账户拥有提交Seed的权限。
+在Seed被成功用于验证sector之后，会获得奖励（seed reward）
+
+#### 命令行调用
+
+1. 设置交易发起账户和TFC-Chain接入点：[见配置文件设置](./README.md#配置文件) 。交易发起账户必须是SeedSubmitter角色。
+2. 执行hardhat task:
+
+**提交Seed**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development listen-verification-task --afid <afid>
+```
+其中`<afid>`为seed的afid（afid-lite），为28个字节的hex字符串。
+
+### ProofVerifier (VERIFY_ROLE)
+
+ProofVerifier角色的账户负责在SectorOwner提交proof后进行验证，并提交验证结果。
+验证结果生效后会获得奖励（verify reward）。
+
+#### 命令行调用
+
+1. 设置交易发起账户和TFC-Chain接入点：[见配置文件设置](./README.md#配置文件) 。交易发起账户必须是ProofVerifier角色。
+2. 执行hardhat task:
+
+**监听Sector Proof的提交**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development listen-proof-submission
+```
+
+**提交Proof验证结果**
+```bash
+yarn workspace @tfc-chain/core hardhat --network development verify-proof --verification <verification> --result <result>
+```
+其中`<verification>`为本次verification的ID（Verification合约地址），`<result>`为proof验证是否通过的bool值。
+
+TO BE CONTINUED...
 
 ## 数据结构
 TFC-Chain中，每一个RNode，Sector，Seed都对应一个智能合约。

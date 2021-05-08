@@ -19,7 +19,7 @@ yarn add @tfc-chain/adapter
 - 提交Sector (需要SECTOR_ROLE权限).
 - 提交Seed (需要SEED_ROLE权限).
 - 监听链上发出的要求提供sector proof的事件.
-- 提交 sector proof (RNode账户).
+- 提交 sector proof (SectorOwner账户).
 - 验证sector proof (需要VERIFY_ROLE权限).
 
 ## 缺陷
@@ -33,13 +33,13 @@ yarn add @tfc-chain/adapter
 `@tfc-chain/adapter`包API设计是给予账户角色的，目前有五种角色：
 - Deployer: 部署合约的账户，负责TurboFil的权限管理
 - Maintainer：负责日常维护TurboFil合约，例如更改奖励数量等
-- RNode：RNode所对应的账户，负责提交sector及其proof
-- Verifier：负责验证sector proof
+- SectorOwner：SectorOwner所对应的账户，负责提交sector及其proof，通常即为RNode。
+- ProofVerifier：负责验证sector proof
 - SeedSubmitter：负责提交seed
 
 ### Deployer
 
-Deployer对应拥有智能合约中DEFAULT_ADMIN_ROLE权限的账户，即为TurboFil合约的部署者。
+Deployer对应拥有智能合约中DEFAULT_ADMIN_ROLE权限的账户。
 
 用法如下：
 
@@ -78,14 +78,14 @@ await maintainer.setSectorReward(1); // the reward given to sector owner after e
 await maintainer.setSeedReward(1); // the reward given to seed submitter after each verification passes.
 await maintainer.setVerifyReward(1); // the reward given to proof verifier after each verification passes.
 await maintainer.setVerifyThreshold(1); // 验证sector proof需要的最少验证数
-await maintainer.setSubmitProofTimeout(6); // RNode提交proof的期限，这个数字为block数量，意为再seed提交后x个block之内RNode必须提交proof
+await maintainer.setSubmitProofTimeout(6); // SectorOwner提交proof的期限，这个数字为block数量，意为再seed提交后x个block之内SectorOwner必须提交proof
 await maintainer.verifyProofTimeout(12); // 验证sector proof的期限，同样为proof提交后block的数量
 await maintainer.setLockPeriod(90); // 押金锁定的周期
 ```
 
-### RNode
+### SectorOwner
 
-RNode对应拥有智能合约中SECTOR_ROLE权限的账户。
+SectorOwner对应拥有智能合约中SECTOR_ROLE权限的账户。
 
 用法如下：
 
@@ -113,7 +113,7 @@ const proof = Buffer.from('0x......') // afid_lite 28 bytes
 await rnode.submitProof(verification, afid);
 ```
 
-### Verifier
+### ProofVerifier
 
 Verifier对应拥有智能合约中VERIFY_ROLE权限的账户。
 
