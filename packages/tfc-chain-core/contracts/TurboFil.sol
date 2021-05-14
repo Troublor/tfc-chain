@@ -14,14 +14,26 @@ contract TurboFil is AccessControl, ITurboFil {
     bytes32 public constant VERIFY_ROLE = keccak256("VERIFY_ROLE"); // the role who can verify sector proof.
     bytes32 public constant SEED_ROLE = keccak256("SEED_ROLE"); // the role who can submit seed.
     bytes32 public constant MAINTAIN_ROLE = keccak256("MAINTAIN_ROLE"); // the role who can do maintenance.
-    
+
+    /// @notice The number of blocks before which sector owner must submit proof after the verification is requested.
     uint256 public submitProofTimeout;
+
+    /// @notice The number of blocks before which verifiers (those who has VERIFY_ROLE) must submit proof verification result after the submitProofTimeout is reached.
     uint256 public verifyProofTimeout;
+
+    /// @notice The minimum number of verifiers (those who has VERIFY_ROLE) required to decide whether a sector proof is valid or not.
     uint256 public verifyThreshold;
-    
+
+    /// @notice The amount of TFC to give seed submitter as reward each time when the sector is verified.
     uint256 public seedReward;
+
+    /// @notice The amount of TFC to give sector owner as reward each time when the sector is verified.
     uint256 public sectorReward;
+
+    /// @notice The amount of TFC to give verifier as reward each time when the sector is verified.
     uint256 public verifyReward;
+
+    /// @notice The number of subsequent verifications after which the sector reward is unlocked and paid to sector owners.
     uint256 public lockPeriod;
 
     mapping(bytes28=>Sector) sectors;
@@ -29,7 +41,16 @@ contract TurboFil is AccessControl, ITurboFil {
     
     mapping(bytes28=>bool) usedSeeds;
 
+    /// @notice SectorSubmission event is emitted when a new sector is submitted.
+    /// @param owner the address of the sector owner.
+    /// @param afid the afid of the sector.
+    /// @param sector the address of the created Sector contract.
     event SectorSubmission(address owner, bytes28 afid, address sector);
+
+    /// @notice VerificationTask event is emitted when a seed is submitted and a sector is selected to verify.
+    /// @param sector_afid the afid of the sector.
+    /// @param seed the afid of the seed.
+    /// @param verification the address of the created verification contract.
     event VerificationTask(bytes28 indexed sector_afid, bytes28 seed, address verification);
 
     constructor(uint256 sectorReward_, uint256 seedReward_, uint256 verifyReward_, uint256 lockPeriod_,
@@ -49,6 +70,13 @@ contract TurboFil is AccessControl, ITurboFil {
     
     /* Core functions */
 
+    /// @notice Submit sector (afid) and specify its owner.
+    /// @notice Deposit must be paid when calling this function.
+    /// @dev This function allows delegate submission which means
+    ///      someone who has SECTOR_ROLE can submit sector on behalf of
+    ///      someone else, specifying the sector owner in the argument.
+    /// @param owner address of the sector owner
+    /// @param afid afid of the sector
     function submitSector(address payable owner_, bytes28 afid_) payable external {
         //TODO sector no repeat
         require(hasRole(SECTOR_ROLE, msg.sender), "TurboFil: caller does not have privilege to submit sector");
@@ -58,7 +86,12 @@ contract TurboFil is AccessControl, ITurboFil {
         sectorList.push(sector);
         emit SectorSubmission(owner_, afid_, address(sector));
     }
-    
+
+    /// @notice Submit seed (its afid)
+    /// @dev This function select the sector to verify based on the seed afid and timestamp.
+    /// @dev If a sector is currently under verification, we skip it and select the next sector.
+    /// @dev A Verification contract will be created to perform the verification logic for the selected sector.
+    /// @param seed the afid of the seed
     function submitSeed(bytes28 seed_) public {
         require(hasRole(SEED_ROLE, msg.sender), "TurboFil: caller does not have privilege to submit seed");
         require(!seedUsed(seed_), "TurboFil: seed already used");
@@ -128,6 +161,7 @@ contract TurboFil is AccessControl, ITurboFil {
         _;
     }
 
+    /// @notice Withdraw all funds in this TurboFil contract.
     function withdraw() onlyMantainer external {
         payable(msg.sender).transfer(address(this).balance);
     }

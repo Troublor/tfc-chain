@@ -49,6 +49,6 @@ yarn workspace @tfc-chain/core test
 ```
 
 ## 合约设计
-
-[DESIGN.md](DESIGN.md)
+- 架构和逻辑：[ARCHITECTURE.md](./ARCHITECTURE.md)
+- 智能合约实现和命令行接口：[DESIGN.md](DESIGN.md)
 

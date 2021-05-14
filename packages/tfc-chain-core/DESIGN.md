@@ -171,200 +171,94 @@ yarn workspace @tfc-chain/core hardhat --network development verify-proof --veri
 ```
 其中`<verification>`为本次verification的ID（Verification合约地址），`<result>`为proof验证是否通过的bool值。
 
-TO BE CONTINUED...
+## 智能合约及其之间的关系
 
-## 数据结构
-TFC-Chain中，每一个RNode，Sector，Seed都对应一个智能合约。
-注册RNode就相当于在链上创建为这个RNode创建一个智能合约。
-每提交一个Sector/Seed就会在链上创建一个Sector/Seed智能合约。
+![relationship](img/contract_relationship.jpg)
+
+TFC-Chain上主要有三种智能合约：TurboFil，Sector和Verification。
+
+TurboFil合约只有唯一的一个实例，它是大部分功能的入口。Sector合约是对应每一个sector的，也就是说，每次有一个新的sector提交，链上就会生成一个新的sector合约。同样，Verification合约对应每一次sector验证，每次有一个sector被选中进行验证时，就会创建一个新的Verification合约进行验证。
 
 ### TurboFil 合约
 TurboFil合约在链上只有一个， 是TFC-Chain大部分功能的调用入口。
-因为区块链的去中心化特性，链下程序调用以下函数之后无法立即得到调用结果。
-每个函数的成功调用都会发出事件。链下程序需要监听这些事件来获知哪些功能被调用了。
 
-主要提供的函数为：
+TurboFil中权限管理的功能继承了`Openzeppelin`代码库中的`AccessControl.sol` 合约。实际使用场景大部分情况下是管理员在命令行调用进行账户角色的授予和收回。具体实现参见[Openzeppelin文档](https://docs.openzeppelin.com/contracts/4.x/access-control) 。
 
-#### 注册RNode
-
-##### 前提条件
-交易发起账户拥有`REGISTER_ROLE`权限。
+#### 属性
 
 ```solidity
-/// @notice Register a RNode. Caller must have REGISTER_ROLE privilege.
-/// @dev This function create a RNode contract.
-/// @param owner_ address of the owner of the RNode
-/// @param afid_ afid of the RNode
-/// @return address of the created RNode contract
-function registerRNode(address owner_, string calldata afid_) public returns (address) 
+/// @notice The number of blocks before which sector owner must submit proof after the verification is requested.
+uint256 public submitProofTimeout;
+
+/// @notice The number of blocks before which verifiers (those who has VERIFY_ROLE) must submit proof verification result after the submitProofTimeout is reached.
+uint256 public verifyProofTimeout;
+
+/// @notice The minimum number of verifiers (those who has VERIFY_ROLE) required to decide whether a sector proof is valid or not.
+uint256 public verifyThreshold;
+
+/// @notice The amount of TFC to give seed submitter as reward each time when the sector is verified.
+uint256 public seedReward;
+
+/// @notice The amount of TFC to give sector owner as reward each time when the sector is verified.
+uint256 public sectorReward;
+
+/// @notice The amount of TFC to give verifier as reward each time when the sector is verified.
+uint256 public verifyReward;
+
+/// @notice The number of subsequent verifications after which the sector reward is unlocked and paid to sector owners.
+uint256 public lockPeriod;
 ```
-此函数会创建一个对应的RNode（一个链上合约），并发出一个事件：
-```solidity
-event RegisterRNode(address owner, address rnode, string afid);
-```
+
+这些属性对应了前面MAINTAIN_ROLE可以维护的参数。
+他们每一个都有对应的set函数来由MAINTAINER设置值。
 
 #### 提交Sector
-##### 前提条件
-交易发起账户拥有`SUBMIT_ROLE`权限。
+**前提条件**
+- 交易发起账户拥有`SECTOR_ROLE`权限。
 
 ```solidity
-/// @notice Submit a sector. Caller must have SUBMIT_ROLE privilege. The transaction must pay 3 TFC as deposit.
-/// @dev This function create a Sector contract corresponding to the submitted sector.
-///      The current design is that this function is typically called by an administrator on behalf of the sector owner.
-/// @param rnode_ address of the RNode contract that this sector belongs to.
-/// @param afid_ afid of the sector
-/// @param merkleRoot_ merkle root of the sector
-/// @return address of the created Sector contract
-function submitSector(IRNode rnode_, address submitter_, string calldata afid_, string calldata merkleRoot_) payable public returns (address)
+/// @notice Submit sector (afid) and specify its owner.
+/// @notice Deposit must be paid when calling this function.
+/// @dev This function allows delegate submission which means
+///      someone who has SECTOR_ROLE can submit sector on behalf of
+///      someone else, specifying the sector owner in the argument.
+/// @param owner address of the sector owner
+/// @param afid afid of the sector
+function submitSector(address payable owner_, bytes28 afid_) payable external
 ```
-提交Sector需要在交易中附上3TFC的转账，用于抵押。
-此函数会创建一个Sector（一个链上合约），并发出一个事件：
+提交Sector需要在交易中附上相当于`lockPeriod * sectorReward`数量的TFC的转账，用于抵押。
+此函数会创建一个Sector合约，并发出一个事件：
 ```solidity
-event SubmitSector(address submitter, address sector, string afid);
+/// @notice SectorSubmission event is emitted when a new sector is submitted.
+/// @param owner the address of the sector owner.
+/// @param afid the afid of the sector.
+/// @param sector the address of the created Sector contract.
+event SectorSubmission(address owner, bytes28 afid, address sector);
 ```
+函数内部逻辑的说明详见：[ARCHITECTURE](./ARCHITECTURE.md#Sector提交)
 
 #### 提交Seed
-##### 前提条件
-交易发起账户拥有`SEED_ROLE`权限。
+**前提条件**
+- 交易发起账户拥有`SEED_ROLE`权限。
 
 ```solidity
-/// @notice A mobile user uses this function to submit a seed (photo).
-/// @dev A submitted seed should not get reward until it gets at least 3 likes.
-///      The current design is that this function is typically called by an administrator on behalf of the seed submitter.
-/// @param submitter_ address of the submitter
-/// @param afid_ afid of the seed
-/// @return address of the created Seed
-function submitSeed(address submitter_, string calldata afid_) public returns (address)
+/// @notice Submit seed (its afid)
+/// @dev This function select the sector to verify based on the seed afid and timestamp.
+/// @dev If a sector is currently under verification, we skip it and select the next sector.
+/// @dev A Verification contract will be created to perform the verification logic for the selected sector.
+/// @param seed the afid of the seed
+function submitSeed(bytes28 seed_) public 
 ```
-此函数会创建一个Seed（一个链上合约），并发出一个事件：
+此函数会创建一个Verification合约，并发出一个事件：
 ```solidity
-event SubmitSeed(address submitter, address seed, string afid);
+/// @notice VerificationTask event is emitted when a seed is submitted and a sector is selected to verify.
+/// @param sector_afid the afid of the sector.
+/// @param seed the afid of the seed.
+/// @param verification the address of the created verification contract.
+event VerificationTask(bytes28 indexed sector_afid, bytes28 seed, address verification);
 ```
+函数内部逻辑的说明详见：[ARCHITECTURE](./ARCHITECTURE.md#Sector验证)
 
-#### 使用Sector验证Seed
-##### 前提条件
-交易发起账户拥有`VERIFY_ROLE`权限。
-Seed必须获得至少三个点赞。
+### Sector合约
 
-```solidity
-/// @notice Verify a sector with a seed. Submit the verification result.
-/// @dev The current design is that this function is typically called by an administrator, which is subject to change in the future.
-/// @param sector_ address of the sector to verify
-/// @param seed_ address of the seed to use
-function verifySector(Sector sector_, Seed seed_, bool success_) public 
-```
-此函数实际上是用于提交Sector的验证结果，链下程序需要先选择一个Seed和Sector，在链下完成Sector验证，然后用验证结果调用此函数。
-此函数发出一个事件：
-```solidity
-event VerifySector(address sector, address seed, bool success);
-```
-
-#### 每日分账
-##### 前提条件
-交易发起账户拥有`REWARD_ROLE`权限。
-
-```solidity
-/// @notice This function receive the total amount of TFC that should be released today and distribute to users.
-///         Caller must pay a certain amount of TFC to distribute across miners based on their contribution.
-/// @dev The current design is that this function is typically called by an administrator, which is subject to change in the future.
-function distributeTFC() payable public
-```
-管理员账户调用此函数并在交易中附上当日分账的总额。
-此函数会根据今日的提交/验证Sector的情况给各个账户分账。
-
-### Seed 合约
-每一个Seed都在链上对应一个合约。
-
-#### 照片点赞/点踩
-
-```solidity
-/// @notice To evaluate a seed by liking or disliking it. 
-/// @dev Each address can only evaluate a seed once. 
-/// @param evaluator_ address of the user who evaluate this seed.
-/// @param like_ whether the user likes this seed (photo)
-function evaluate(address evaluator_, bool like_) public
-```
-调用此函数来记录用户对于照片的点赞或点踩。
-此函数会发出一个事件：
-```solidity
-event EvaluateSeed(address seed, string afid, address evaluator, bool like);
-```
-
-#### 查询当前照片的点赞数和点踩数。
-```solidity
-function likes() view external returns (uint256);
-function dislikes() view external returns (uint256);
-```
-注意这两个函数的调用不需要发起交易，可以立刻得到调用结果。
-
-### 分账合约TFCShare
-
-分账合约分别有四个，分别对应四种类别的分账：
-- sectorSubmissionShare：管理每日sector提交相关的分账
-- sectorVerificationShare：管理每日sector验证相关的分账
-- seedSubmissionShare：管理每日seed提交相关的分账
-- seedEvaluationShare: 管理每日seed点赞/点踩的分账
-
-每一个TFCShare合约在分账时都会产生一系列的事件，来记录分账的具体信息：
-```solidity
-event Reward(address recipient, uint256 amount, uint256 timestamp);
-```
-链下程序可以监听/检索这个事件来获取账户的收益历史。
-
-### RNode合约
-
-当RNode合约收到TFC转账之后，会发出以下事件：
-```solidity
-event ReceiveTFC(address from, uint256 value);
-```
-链下程序可以监听这个事件以获知用户向RNode的转账。
-
-## @tfc-chain/core 
-
-当前测试版合约已经部署在crypto1测试网络上，部署的合约可以通过`@tfc-chain/core` npm package获得。
-```typescript
-import * as tfc from '@tfc-chain/core';
-```
-
-`@tfc-chain/core`中预定义了已经部署在测试链上的合约（ethers.js Contract Instance)
-```typescript
-// ethers.js Contract Instance
-tfc.networks.development.TurboFil.contract;
-tfc.networks.development.TFCShare.sectorSubmissionShare;
-tfc.networks.development.TFCShare.sectorVerificationShare;
-tfc.networks.development.TFCShare.seedSubmissionShare;
-tfc.networks.development.TFCShare.seedEvaluationShare;
-```
-
-在使用这些合约对象之前记得要链接Signer来做调用函数时的交易签名。
-```typescript
-import * as ethers from 'ethers';
-import * as tfc from '@tfc-chain/core';
-
-// 以太坊接入点url
-const provider = ethers.getDefaultProvider('http://localhost:8545');
-
-const privateKey = "...";
-const wallet: ethers.Signer = new ethers.Wallet(privateKey, provider);
-// 使用wallet账户作为交易发起（签名）账户
-const turbofil = tfc.networks.development.TurboFil.contract.connect(wallet);
-// 发起注册RNode交易
-const tx = await turbofil.registerRNode(...);
-// 等待交易被至少一个区块确认
-await tx.wait(1);
-```
-
-## Playground Functions
-
-[`src/playground/index.ts`](./src/playground/index.ts)中有一些调用智能合约以及监听事件的例子。
-
-其中实现了一个Mock运行环境，可以在本地环境模拟智能合约的调用。
-[`src/playground/index.ts`](./src/playground/index.ts)文件中的每一个函数是一个使用Mock环境调用智能合约的例子。
-你可以参考其中的用法，在尝试调用智能合约。
-这在开发阶段非常有用。
-
-```typescript
-import * as mockTfc from '@tfc-chain/core/src/playground';
-
-mockTfc.getSeedEvaluationEventsEmittedInHistory();
-```
+每个提交到链上的Sector都对应一个Sector合约。
