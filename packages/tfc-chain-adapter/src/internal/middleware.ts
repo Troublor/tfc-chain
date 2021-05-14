@@ -20,7 +20,7 @@ export class Middleware extends EventEmitter<Events> {
         super();
         this.provider = endpoint2Provider(chainEndpoint);
         this.wallet = new ethers.Wallet(privateKey);
-        this.wallet.connect(this.provider);
+        this.wallet = this.wallet.connect(this.provider);
         this.turboFil = skeletons.TurboFil.factory.attach(turboFilAddress).connect(this.wallet);
 
         this.on('newListener', (event) => {
