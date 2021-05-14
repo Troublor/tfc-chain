@@ -75,8 +75,8 @@ contract TurboFil is AccessControl, ITurboFil {
     /// @dev This function allows delegate submission which means
     ///      someone who has SECTOR_ROLE can submit sector on behalf of
     ///      someone else, specifying the sector owner in the argument.
-    /// @param owner address of the sector owner
-    /// @param afid afid of the sector
+    /// @param owner_ address of the sector owner
+    /// @param afid_ afid of the sector
     function submitSector(address payable owner_, bytes28 afid_) payable external {
         //TODO sector no repeat
         require(hasRole(SECTOR_ROLE, msg.sender), "TurboFil: caller does not have privilege to submit sector");
@@ -91,7 +91,7 @@ contract TurboFil is AccessControl, ITurboFil {
     /// @dev This function select the sector to verify based on the seed afid and timestamp.
     /// @dev If a sector is currently under verification, we skip it and select the next sector.
     /// @dev A Verification contract will be created to perform the verification logic for the selected sector.
-    /// @param seed the afid of the seed
+    /// @param seed_ the afid of the seed
     function submitSeed(bytes28 seed_) public {
         require(hasRole(SEED_ROLE, msg.sender), "TurboFil: caller does not have privilege to submit seed");
         require(!seedUsed(seed_), "TurboFil: seed already used");
