@@ -1,9 +1,9 @@
 {
   "name": "@tfc-chain/key",
   "version": "1.0.2",
+  "private": true,
   "scripts": {
     "build": "go build -o bin/tfc-chain-key main/cli.go",
     "test": "go test ./..."
-  },
-  "gitHead": "960e7ca256a949406de849229769c9fdc86a8424"
+  }
 }
