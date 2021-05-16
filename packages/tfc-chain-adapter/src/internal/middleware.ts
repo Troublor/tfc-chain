@@ -112,8 +112,8 @@ export class Middleware extends EventEmitter<Events> {
         this.on('block', async block => {
             this.provider.getLogs({
                 ...filter,
-                fromBlock: block.hash,
-                toBlock: block.hash,
+                fromBlock: block.number,
+                toBlock: block.number,
             }).then(logs => {
                 for (const log of logs) {
                     const description = skeletons.Verification.factory.interface.parseLog(log);
