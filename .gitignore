@@ -129,3 +129,4 @@ gen
 cache
 coverage.json
 blockchain
+.DS_Store
