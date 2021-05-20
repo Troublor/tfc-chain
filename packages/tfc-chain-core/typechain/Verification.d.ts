@@ -21,6 +21,9 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface VerificationInterface extends ethers.utils.Interface {
   functions: {
+    "REWARD_SECTOR()": FunctionFragment;
+    "REWARD_SEED()": FunctionFragment;
+    "REWARD_VERIFY()": FunctionFragment;
     "STATUS_VERIFYING()": FunctionFragment;
     "STATUS_WAITING()": FunctionFragment;
     "abandoned()": FunctionFragment;
@@ -47,6 +50,18 @@ interface VerificationInterface extends ethers.utils.Interface {
     "verifyThreshold()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "REWARD_SECTOR",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REWARD_SEED",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REWARD_VERIFY",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "STATUS_VERIFYING",
     values?: undefined
@@ -114,6 +129,18 @@ interface VerificationInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "REWARD_SECTOR",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REWARD_SEED",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REWARD_VERIFY",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "STATUS_VERIFYING",
     data: BytesLike
@@ -184,11 +211,13 @@ interface VerificationInterface extends ethers.utils.Interface {
   events: {
     "ProofSubmitted(bytes28,bytes28,bytes28)": EventFragment;
     "ProofVerified(bytes28,bytes28,bytes28,bool)": EventFragment;
+    "Reward(uint8,address,uint256)": EventFragment;
     "VerifyFinish(bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ProofSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProofVerified"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Reward"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VerifyFinish"): EventFragment;
 }
 
@@ -236,6 +265,18 @@ export class Verification extends Contract {
   interface: VerificationInterface;
 
   functions: {
+    REWARD_SECTOR(overrides?: CallOverrides): Promise<[number]>;
+
+    "REWARD_SECTOR()"(overrides?: CallOverrides): Promise<[number]>;
+
+    REWARD_SEED(overrides?: CallOverrides): Promise<[number]>;
+
+    "REWARD_SEED()"(overrides?: CallOverrides): Promise<[number]>;
+
+    REWARD_VERIFY(overrides?: CallOverrides): Promise<[number]>;
+
+    "REWARD_VERIFY()"(overrides?: CallOverrides): Promise<[number]>;
+
     STATUS_VERIFYING(overrides?: CallOverrides): Promise<[number]>;
 
     "STATUS_VERIFYING()"(overrides?: CallOverrides): Promise<[number]>;
@@ -351,6 +392,18 @@ export class Verification extends Contract {
 
     "verifyThreshold()"(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  REWARD_SECTOR(overrides?: CallOverrides): Promise<number>;
+
+  "REWARD_SECTOR()"(overrides?: CallOverrides): Promise<number>;
+
+  REWARD_SEED(overrides?: CallOverrides): Promise<number>;
+
+  "REWARD_SEED()"(overrides?: CallOverrides): Promise<number>;
+
+  REWARD_VERIFY(overrides?: CallOverrides): Promise<number>;
+
+  "REWARD_VERIFY()"(overrides?: CallOverrides): Promise<number>;
 
   STATUS_VERIFYING(overrides?: CallOverrides): Promise<number>;
 
@@ -468,6 +521,18 @@ export class Verification extends Contract {
   "verifyThreshold()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    REWARD_SECTOR(overrides?: CallOverrides): Promise<number>;
+
+    "REWARD_SECTOR()"(overrides?: CallOverrides): Promise<number>;
+
+    REWARD_SEED(overrides?: CallOverrides): Promise<number>;
+
+    "REWARD_SEED()"(overrides?: CallOverrides): Promise<number>;
+
+    REWARD_VERIFY(overrides?: CallOverrides): Promise<number>;
+
+    "REWARD_VERIFY()"(overrides?: CallOverrides): Promise<number>;
+
     STATUS_VERIFYING(overrides?: CallOverrides): Promise<number>;
 
     "STATUS_VERIFYING()"(overrides?: CallOverrides): Promise<number>;
@@ -576,8 +641,8 @@ export class Verification extends Contract {
 
   filters: {
     ProofSubmitted(
-      sector_afid: null,
-      seed: null,
+      sector_afid: BytesLike | null,
+      seed: BytesLike | null,
       proof: null
     ): TypedEventFilter<
       [string, string, string],
@@ -585,21 +650,42 @@ export class Verification extends Contract {
     >;
 
     ProofVerified(
-      sector_afid: null,
-      seed: null,
+      sector_afid: BytesLike | null,
+      seed: BytesLike | null,
       proof: null,
-      result: null
+      result: boolean | null
     ): TypedEventFilter<
       [string, string, string, boolean],
       { sector_afid: string; seed: string; proof: string; result: boolean }
     >;
 
+    Reward(
+      reward_type: BigNumberish | null,
+      to: string | null,
+      amount: null
+    ): TypedEventFilter<
+      [number, string, BigNumber],
+      { reward_type: number; to: string; amount: BigNumber }
+    >;
+
     VerifyFinish(
-      result: null
+      result: boolean | null
     ): TypedEventFilter<[boolean], { result: boolean }>;
   };
 
   estimateGas: {
+    REWARD_SECTOR(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REWARD_SECTOR()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    REWARD_SEED(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REWARD_SEED()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    REWARD_VERIFY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REWARD_VERIFY()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     STATUS_VERIFYING(overrides?: CallOverrides): Promise<BigNumber>;
 
     "STATUS_VERIFYING()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -717,6 +803,18 @@ export class Verification extends Contract {
   };
 
   populateTransaction: {
+    REWARD_SECTOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "REWARD_SECTOR()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    REWARD_SEED(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "REWARD_SEED()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    REWARD_VERIFY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "REWARD_VERIFY()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     STATUS_VERIFYING(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "STATUS_VERIFYING()"(

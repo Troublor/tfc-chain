@@ -8,6 +8,10 @@ contract Verification {
     uint8 public constant STATUS_WAITING = 0;
     uint8 public constant STATUS_VERIFYING = 1;
 
+    uint8 public constant REWARD_SECTOR = 0;
+    uint8 public constant REWARD_SEED = 1;
+    uint8 public constant REWARD_VERIFY = 2;
+
     ITurboFil public turboFil;
     ISector public sector;
     bytes28 public seed;
@@ -32,9 +36,10 @@ contract Verification {
         _;
     }
 
-    event ProofSubmitted(bytes28 sector_afid, bytes28 seed, bytes28 proof);
-    event ProofVerified(bytes28 sector_afid, bytes28 seed, bytes28 proof, bool result);
-    event VerifyFinish(bool result);
+    event ProofSubmitted(bytes28 indexed sector_afid, bytes28 indexed seed, bytes28 proof);
+    event ProofVerified(bytes28 indexed sector_afid, bytes28 indexed seed, bytes28 proof, bool indexed result);
+    event Reward(uint8 indexed reward_type, address indexed to, uint256 amount);
+    event VerifyFinish(bool indexed result);
 
     /// @dev created by TurboFil
     constructor(
@@ -99,9 +104,12 @@ contract Verification {
 
     function _reward() internal {
         sector.verificationResult{value: sectorReward}(seed, true);
-        seedSubmitter.transfer(seedReward);
+        emit Reward(REWARD_SECTOR, address(sector), sectorReward);
+        bool success = seedSubmitter.send(seedReward);
+        if (success) emit Reward(REWARD_SEED, seedSubmitter, seedReward);
         for (uint256 i = 0; i < trueVerifiers.length; i++){
-            payable(trueVerifiers[i]).send(verifyReward);
+            bool success = payable(trueVerifiers[i]).send(verifyReward);
+            if (success) emit Reward(REWARD_VERIFY, trueVerifiers[i], verifyReward);
         }
         if (address(this).balance > 0) {
             payable(address(turboFil)).transfer(address(this).balance);

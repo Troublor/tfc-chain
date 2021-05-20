@@ -217,3 +217,35 @@ const turboFilAddress = await Deployer.deploy(endpoint, privateKey, initArgs);
 `x >= 1`
 
 注意：测试区块链环境下`x`必须设为1。
+
+## User类
+User类抽象了TFC-Chain上账户的通用操作。
+所有五种角色的类都继承了User类。
+
+### TFC转账
+```typescript
+import {User} from '@tfc-chain/adapter';
+
+const user = new User(endpoint, privateKey, turboFilAddress);
+await user.transfer(toAddress, amount);
+```
+
+### 监听奖励的发放
+```typescript
+import {User} from '@tfc-chain/adapter';
+
+const endpoint = 'http://localhost:8545';
+const privateKey = '0x......';
+const turboFilAddress = '0x......';
+
+const user = new User(endpoint, privateKey, turboFilAddress);
+
+// 监听某一个sector需要提交proof的事件
+const lastBlockNumber = 0
+const verification = "0x....."; // the address of verification contract to listen to; null to listen to all.
+const rewardType = 0; // 0=sector_reward, 1=seed_reward, 2=verify_reward;  null to listen to all.
+const to = "0x......"; // the address that receives the reward;  null to listen to all.
+user.onReceiveReward((rewardType: number, to: string, amount: ethers.BigNumber, verification: string)=> {
+    ... // verification为reward所属验证的标识ID
+}, verification, rewardType, to, lastBlockNumber);
+```

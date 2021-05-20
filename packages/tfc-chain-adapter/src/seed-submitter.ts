@@ -1,6 +1,7 @@
 import {Middleware} from './internal/middleware';
+import {User} from './user';
 
-export class SeedSubmitter extends Middleware{
+export class SeedSubmitter extends User {
     async submitSeed(seed: Buffer): Promise<{
         sectorAfid: string,
         verification: string,

@@ -1,8 +1,9 @@
 import {ethers} from 'ethers';
 import {Middleware} from './internal/middleware';
 import {skeletons} from '@tfc-chain/core';
+import {User} from './user';
 
-export class RNode extends Middleware {
+export class RNode extends User {
     async submitSector(afid: Buffer): Promise<ethers.ContractReceipt> {
         if (!await this.hasSectorRole()) {
             throw new Error(`account ${this.wallet.address} does not have privilege to submit sector, please let maintainer grant the proper role`);

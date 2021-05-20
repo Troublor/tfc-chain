@@ -3,8 +3,9 @@ import {TurboFil} from '@tfc-chain/core/typechain';
 import {skeletons} from '@tfc-chain/core';
 import {ethers} from 'ethers';
 import {TransactionReceipt} from '@ethersproject/abstract-provider';
+import {User} from './user';
 
-export class Maintainer extends Middleware {
+export class Maintainer extends User {
 
     constructor(chainEndpoint: string, maintainerPrivateKey: string, turboFilAddress: string) {
         super(chainEndpoint, maintainerPrivateKey, turboFilAddress);
