@@ -33,6 +33,11 @@ contract Sector is ISector {
     // @notice the latest verification for this sector
     Verification public verification;
 
+    /// @notice VerificationResult event will be emitted every time a verification is settled for this sector.
+    /// @param seed the afid of the seed used in this verification
+    /// @param result whether the verification pass or fail
+    /// @param reward the amount of TFC the sector get as reward in this verification (if pass)
+    /// @param punish the amount of TFC the sector is punished in this verification (if fail)
     event VerificationResult(bytes28 seed, bool result, uint256 reward, uint256 punish);
     
     modifier onlyTurboFil {

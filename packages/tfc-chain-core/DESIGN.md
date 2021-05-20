@@ -262,3 +262,73 @@ event VerificationTask(bytes28 indexed sector_afid, bytes28 seed, address verifi
 ### Sector合约
 
 每个提交到链上的Sector都对应一个Sector合约。
+Sector合约中记录的该sector的拥有者（owner）以及afid。
+
+通常情况下，链下程序不会直接调用Sector合约的函数。
+
+#### Sector验证结果事件
+
+每次Verification完成后，被验证的sector合约会发出VerificationResult事件：
+```solidity
+/// @notice VerificationResult event will be emitted every time a verification is settled for this sector.
+/// @param seed the afid of the seed used in this verification
+/// @param result whether the verification pass or fail
+/// @param reward the amount of TFC the sector get as reward in this verification (if pass)
+/// @param punish the amount of TFC the sector is punished in this verification (if fail)
+event VerificationResult(bytes28 seed, bool result, uint256 reward, uint256 punish);
+```
+链下程序可以检索这个事件来获取某一个sector获得奖励的历史记录，或者监听这个事件来获知新的奖励。
+
+### Verification合约
+
+每次有seed被提交的时候，就会挑选一个sector进入验证逻辑。
+每次验证逻辑开始时，一个新的Verification合约会被创建，它的生命周期仅在本次验证过程中有效。
+
+Verification合约中记录了当前验证过程所处的阶段：
+- STATUS_WAITING：代表本次验证仍处于等待sector owner提交proof的阶段
+- STATUS_VERIFYING：代表本次验证处于proof已提交，等待超级节点提交验证结果的阶段。
+
+Verification合约中还记录了：
+- 如果验证完成，给各方发放奖励的金额。
+- 被验证的sector的合约地址
+- 被用于验证的seed afid
+
+#### 提交Proof
+Verification合约中的sector的owner需要给Verification合约提交proof
+```solidity
+/// @notice Submit proof of the sector for verification
+/// @notice This function must be called by sector owner
+/// @param proof_ the afid of the proof
+function submitProof(bytes28 proof_) onlyStatus(STATUS_WAITING) external
+```
+proof提交后Verification合约会发出ProofSubmitted事件，超级节点需要监听这个事件，在proof提交后，验证proof并提交验证结果。
+```solidity
+event ProofSubmitted(bytes28 sector_afid, bytes28 seed, bytes28 proof);
+```
+
+#### 提交验证结果
+在proof提交后，超级节点需要验证这个proof并提交验证结果（proof是否有效）。
+```solidity
+/// @notice Submit the verification result of the proof. 
+/// @notice This function must be called by users who has VERIFY_ROLE in TurboFil contract.
+/// @param result_ whether the proof is valid or not
+function verifyProof(bool result_) onlyStatus(STATUS_VERIFYING) external 
+```
+每次一个超级节点提交验证结果后，Verification合约都会发出ProofVerified事件。链下程序可以检索或者监听这个事件。
+```solidity
+event ProofVerified(bytes28 sector_afid, bytes28 seed, bytes28 proof, bool result);
+```
+当验证结果在超级节点之间达成多数共识后（提交true或false的超级节点数超过TurboFil合约中设置的阈值），Verification合约会发出VerifyFinish事件。
+```solidity
+event VerifyFinish(bool result);
+```
+
+#### 过期Verification回收
+因为TFC的奖励是预支给Verification合约的（这样在验证过程结束后才能自动发放奖励），所以如果Verification合约在规定时间内没有提交proof或者没有足够的超级节点提交验证结果，那么TFC奖励需要退回TurboFil合约。
+
+在这种情况下，需要一个链下程序调用Verification合约的collectFunds函数：
+```solidity
+/// @notice collect TFC that is not given as reward.
+function collectFunds() public 
+```
+这种情况不会很多因为验证sector会获得奖励，sector owner和超级节点会有足够的动机去及时提交proof或验证结果。
