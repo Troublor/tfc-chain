@@ -92,7 +92,7 @@ geth --datadir $DATADIR init $DATADIR/genesis.json
 
 bootstrap节点帮助其他节点相互发现对方，并建立P2P网络。
 
-选定一个节点，取得该节点的公网IP（例如：172.16.254.4），执行以下命令：
+选定一个节点，取得该节点的公网IP（例如：172.16.254.4；如果所有节点都处于一个服务器上，这里可以使用127.0.0.1），执行以下命令：
 start.sh: 
 ```bash
 geth --datadir $DATADIR --networkid 9500 --nat extip:172.16.254.4 console
@@ -138,7 +138,11 @@ geth --datadir $DATADIR \
 将`0x4ba55198b7DD2dCbd7196002Ac9579583fF4E8f5`替换为出块账户的地址。
 替换`--bootnodes`参数的值为来之前启动的bootstrap节点的node record。
 
-注意：如果多个节点运行在同一个服务器上，注意修改`--port`, `--http.port`, `--ws.port`来避免端口冲突。
+注意：如果多个节点运行在同一个服务器上，修改`--datadir`, `--port`, `--http.port`, `--ws.port`来避免冲突。
+- `--datadir`是区块链节点的数据库文件夹路径，（如果多个节点部署在同一个服务器上，每个节点都必须有不同的数据库文件夹）
+- `--port`是区块链节点P2P网络通信所用的端口
+- `--http.port`是区块链节点HTTP协议接入点所用的端口
+- `--port`是区块链节点WebSocket协议接入点所用的端口
 
 详细参数解释参见[以太坊官方文档](https://geth.ethereum.org/docs/interface/command-line-options) 。
 
